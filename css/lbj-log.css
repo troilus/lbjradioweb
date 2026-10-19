@@ -43,3 +43,48 @@
 #pane-tools .lbj-results { margin-top: 18px; }
 #pane-tools .lbj-results > .tab-description { margin: 0 0 12px; }
 #pane-tools .lbj-results > .app-catalog-search { margin-bottom: 12px; }
+
+/* ---------- Archive catalog pickers (flash / slots / apps) ----------
+   tools.css already styles the select and its label; the header row with the
+   refresh action is the only piece it does not cover. */
+#pane-tools .firmware-catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+#pane-tools .firmware-catalog-toolbar label {
+  margin-bottom: 0;
+}
+#pane-tools .firmware-catalog-toolbar .btn {
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+/* The app catalog summary carries the refresh action plus the source hint. */
+#pane-tools .app-catalog-summary {
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+#pane-tools .app-catalog-summary .btn {
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+#pane-tools .app-catalog-summary > span {
+  text-align: right;
+}
+
+/* The reduced app manager hides the table until a scan has produced rows. */
+#pane-tools .apps-table-wrap[hidden] {
+  display: none;
+}
+
+/* Version strings read better aligned. */
+#pane-tools .slots-table .slot-version-value,
+#pane-tools .slots-table .slot-size {
+  font-variant-numeric: tabular-nums;
+}

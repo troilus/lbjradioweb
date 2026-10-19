@@ -20,6 +20,28 @@
     const MSG_DEV_INFO_RESP = 0x0515;
     const MSG_READ_FLASH = 0x0738;
     const MSG_READ_FLASH_RESP = 0x0739;
+    const MSG_REBOOT = 0x05DD;
+
+    // DFU (bootloader) flashing — UV Studio's 0x0518/0x0530/0x0519 handshake.
+    const MSG_NOTIFY_DEV_INFO = 0x0518;
+    const MSG_NOTIFY_BL_VER = 0x0530;
+    const MSG_PROG_FW = 0x0519;
+    const MSG_PROG_FW_RESP = 0x051A;
+    const FW_PAGE_SIZE = 256;
+    const FW_MIN_BOOTLOADER = "7.00.07";
+
+    // Firmware slots ("multiboot", App/app/multiboot.c).
+    const MSG_SLOT_INFO = 0x0720, MSG_SLOT_INFO_RESP = 0x0721;
+    const MSG_SLOT_ERASE = 0x0722, MSG_SLOT_ERASE_RESP = 0x0723;
+    const MSG_SLOT_WRITE = 0x0724, MSG_SLOT_WRITE_RESP = 0x0725;
+    const MSG_SLOT_VALIDATE = 0x0726, MSG_SLOT_VALIDATE_RESP = 0x0727;
+    const MSG_PROFILE_ERASE = 0x0728, MSG_PROFILE_ERASE_RESP = 0x0729;
+
+    // Overlay apps (App/app/overlay*.c).
+    const MSG_APP_INFO = 0x0730, MSG_APP_INFO_RESP = 0x0731;
+    const MSG_APP_ERASE = 0x0732, MSG_APP_ERASE_RESP = 0x0733;
+    const MSG_APP_WRITE = 0x0734, MSG_APP_WRITE_RESP = 0x0735;
+    const MSG_APP_VALIDATE = 0x0736, MSG_APP_VALIDATE_RESP = 0x0737;
 
     const OBFUS_TBL = new Uint8Array([
         0x16, 0x6c, 0x14, 0xe6, 0x2e, 0x91, 0x0d, 0x40,
@@ -399,15 +421,314 @@
         return image;
     }
 
+    // ---- Generic request/response -------------------------------------------
+
+    /* Send one command and wait for its reply type. `data` is the payload after
+       the 4-byte message header; `readBuffer` is cleared first, exactly like
+       UV Studio's slotCommand/appCommand helpers. */
+    async function exchange(msgType, data, responseType, timeoutMs) {
+        if (!port) throw new Error("Not connected.");
+        const activeSession = session;
+        readBuffer = [];
+
+        const message = createMessage(msgType, data ? data.length : 0);
+        if (data && data.length) message.set(data, 4);
+        await sendMessage(message);
+
+        let revision = serialReadRevision;
+        const deadline = performance.now() + timeoutMs;
+        for (;;) {
+            assertSession(activeSession);
+            for (;;) {
+                const buffered = readBuffer.length;
+                const response = fetchMessage(readBuffer);
+                if (response && response.msgType === responseType) return response.data;
+                if (response === null && readBuffer.length === buffered) break;
+            }
+            const remaining = deadline - performance.now();
+            if (remaining <= 0) break;
+            const received = await waitForSerialRead(revision, remaining);
+            revision = serialReadRevision;
+            if (!received) break;
+        }
+        throw new Error(`No reply to 0x${msgType.toString(16).toUpperCase()}.`);
+    }
+
+    // ---- Firmware slots ------------------------------------------------------
+
+    function slotInfo(slot) {
+        return exchange(MSG_SLOT_INFO, Uint8Array.of(slot), MSG_SLOT_INFO_RESP, 3000);
+    }
+
+    function slotErase(slot, timestamp) {
+        const data = new Uint8Array(6);
+        data[0] = slot;
+        new DataView(data.buffer).setUint32(2, timestamp, true);
+        return exchange(MSG_SLOT_ERASE, data, MSG_SLOT_ERASE_RESP, 30000);
+    }
+
+    function slotResetConfig(slot, timestamp) {
+        const data = new Uint8Array(6);
+        data[0] = slot;
+        new DataView(data.buffer).setUint32(2, timestamp, true);
+        return exchange(MSG_PROFILE_ERASE, data, MSG_PROFILE_ERASE_RESP, 30000);
+    }
+
+    function slotWriteChunk(slot, offset, timestamp, chunk) {
+        const data = new Uint8Array(12 + chunk.length);
+        const view = new DataView(data.buffer);
+        data[0] = slot;
+        view.setUint32(2, offset, true);
+        view.setUint16(6, chunk.length, true);
+        view.setUint32(8, timestamp, true);
+        data.set(chunk, 12);
+        return exchange(MSG_SLOT_WRITE, data, MSG_SLOT_WRITE_RESP, 1500);
+    }
+
+    /* Programming the same bytes onto already-erased NOR flash is idempotent, so
+       a lost or garbled reply is recovered by re-sending the chunk. */
+    async function slotWriteChunkRetry(slot, offset, timestamp, chunk, onRetry) {
+        for (let attempt = 0; ; attempt++) {
+            try {
+                return await slotWriteChunk(slot, offset, timestamp, chunk);
+            } catch (error) {
+                if (error?.code === "UVSTUDIO_SERIAL_SESSION_CHANGED" || attempt >= 4) throw error;
+                if (onRetry) onRetry(attempt + 1);
+                await new Promise(resolve => setTimeout(resolve, 60));
+            }
+        }
+    }
+
+    function slotValidate(slot) {
+        return exchange(MSG_SLOT_VALIDATE, Uint8Array.of(slot), MSG_SLOT_VALIDATE_RESP, 20000);
+    }
+
+    // ---- Overlay apps --------------------------------------------------------
+
+    function appInfo(slot) {
+        return exchange(MSG_APP_INFO, Uint8Array.of(slot), MSG_APP_INFO_RESP, 3000);
+    }
+
+    function appErase(slot, timestamp) {
+        const data = new Uint8Array(6);
+        data[0] = slot;
+        new DataView(data.buffer).setUint32(2, timestamp, true);
+        return exchange(MSG_APP_ERASE, data, MSG_APP_ERASE_RESP, 30000);
+    }
+
+    function appWriteChunk(slot, offset, timestamp, chunk) {
+        const data = new Uint8Array(12 + chunk.length);
+        const view = new DataView(data.buffer);
+        data[0] = slot;
+        view.setUint32(2, offset, true);
+        view.setUint16(6, chunk.length, true);
+        view.setUint32(8, timestamp, true);
+        data.set(chunk, 12);
+        return exchange(MSG_APP_WRITE, data, MSG_APP_WRITE_RESP, 1500);
+    }
+
+    async function appWriteChunkRetry(slot, offset, timestamp, chunk, onRetry) {
+        for (let attempt = 0; ; attempt++) {
+            try {
+                return await appWriteChunk(slot, offset, timestamp, chunk);
+            } catch (error) {
+                if (error?.code === "UVSTUDIO_SERIAL_SESSION_CHANGED" || attempt >= 4) throw error;
+                if (onRetry) onRetry(attempt + 1);
+                await new Promise(resolve => setTimeout(resolve, 60));
+            }
+        }
+    }
+
+    function appValidate(slot) {
+        return exchange(MSG_APP_VALIDATE, Uint8Array.of(slot), MSG_APP_VALIDATE_RESP, 20000);
+    }
+
+    // ---- DFU flashing --------------------------------------------------------
+
+    /* The bootloader announces itself with 0x0518 every ~100 ms. Five messages
+       spaced 5..1000 ms apart mean the stream is stable enough to trust. */
+    async function waitForBootloader(onLog) {
+        let lastTimestamp = 0;
+        let accepted = 0;
+        const deadline = performance.now() + 5000;
+        const log = onLog || (() => {});
+
+        while (performance.now() < deadline) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            const message = fetchMessage(readBuffer);
+            if (!message) continue;
+            if (message.msgType !== MSG_NOTIFY_DEV_INFO) continue;
+
+            const now = Date.now();
+            const delta = now - lastTimestamp;
+            lastTimestamp = now;
+            if (delta >= 5 && delta <= 1000) {
+                accepted++;
+                if (accepted >= 5) {
+                    const uid = message.data.slice(0, 16);
+                    let end = 32;
+                    for (let i = 16; i < 32; i++) {
+                        if (message.data[i] === 0) { end = i; break; }
+                    }
+                    return {
+                        uid,
+                        blVersion: new TextDecoder().decode(message.data.slice(16, end))
+                    };
+                }
+            } else {
+                accepted = 0;
+            }
+        }
+        log("Bootloader not detected.", "error");
+        throw new Error("The radio did not announce itself. Is it in DFU mode?");
+    }
+
+    // 0x0530: echo the bootloader version three times, then drain the stream.
+    async function performHandshake(blVersion, onLog) {
+        const log = onLog || (() => {});
+        const deadline = performance.now() + 5000;
+        let sent = 0;
+        while (sent < 3) {
+            if (performance.now() > deadline) {
+                log("Handshake timed out.", "error");
+                throw new Error("The bootloader stopped answering during the handshake.");
+            }
+            await new Promise(resolve => setTimeout(resolve, 50));
+            const message = fetchMessage(readBuffer);
+            if (!message || message.msgType !== MSG_NOTIFY_DEV_INFO) continue;
+            const handshake = createMessage(MSG_NOTIFY_BL_VER, 4);
+            const bytes = new TextEncoder().encode(String(blVersion).substring(0, 4));
+            for (let i = 0; i < Math.min(bytes.length, 4); i++) handshake[4 + i] = bytes[i];
+            await sendMessage(handshake);
+            sent++;
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 200));
+        while (readBuffer.length > 0) {
+            if (!fetchMessage(readBuffer)) break;
+        }
+        log("Handshake complete.", "success");
+    }
+
+    /* 0x0519: page-by-page programming. Each reply carries the page index and an
+       error code; a page is retried up to MAX_RETRIES times. */
+    async function programFirmware(firmware, options) {
+        const settings = options || {};
+        const onProgress = settings.onProgress || (() => {});
+        const onLog = settings.onLog || (() => {});
+        const isCancelled = settings.isCancelled || (() => false);
+
+        const pageCount = Math.ceil(firmware.length / FW_PAGE_SIZE);
+        const timestamp = Date.now() & 0xffffffff;
+        const MAX_RETRIES = 3;
+        let pageIndex = 0;
+        let retryCount = 0;
+
+        while (pageIndex < pageCount) {
+            if (isCancelled()) throw new Error("Cancelled.");
+            onProgress((pageIndex / pageCount) * 100);
+
+            const message = createMessage(MSG_PROG_FW, 268);
+            const view = new DataView(message.buffer);
+            view.setUint32(4, timestamp, true);
+            view.setUint16(8, pageIndex, true);
+            view.setUint16(10, pageCount, true);
+
+            const offset = pageIndex * FW_PAGE_SIZE;
+            const length = Math.min(FW_PAGE_SIZE, firmware.length - offset);
+            for (let i = 0; i < length; i++) message[16 + i] = firmware[offset + i];
+
+            await sendMessage(message);
+
+            let gotResponse = false;
+            let replyError = null;
+            for (let attempt = 0; attempt < 300 && !gotResponse; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                const response = fetchMessage(readBuffer);
+                if (!response) continue;
+                if (response.msgType === MSG_NOTIFY_DEV_INFO) continue;
+                if (response.msgType !== MSG_PROG_FW_RESP) continue;
+
+                const reply = new DataView(
+                    response.data.buffer, response.data.byteOffset, response.data.byteLength);
+                const replyPage = reply.getUint16(4, true);
+                const errorCode = reply.getUint16(6, true);
+
+                if (replyPage !== pageIndex) {
+                    onLog(`Page ${pageIndex + 1}/${pageCount}: reply for page ${replyPage + 1} ignored.`, "info");
+                    continue;
+                }
+                if (errorCode !== 0) {
+                    replyError = errorCode;
+                    break;
+                }
+
+                gotResponse = true;
+                retryCount = 0;
+                if ((pageIndex + 1) % 10 === 0 || pageIndex === pageCount - 1) {
+                    onLog(`Page ${pageIndex + 1}/${pageCount} OK.`, "success");
+                }
+            }
+
+            if (gotResponse) {
+                pageIndex++;
+                continue;
+            }
+
+            // A page that replied with an error or timed out counts once, not twice.
+            retryCount++;
+            if (replyError !== null) {
+                onLog(`Page ${pageIndex + 1}/${pageCount}: error ${replyError}.`, "error");
+                if (retryCount > MAX_RETRIES) throw new Error(`Too many errors at page ${pageIndex}.`);
+            } else {
+                onLog(`Page ${pageIndex + 1}/${pageCount}: timeout.`, "error");
+                if (retryCount > MAX_RETRIES) throw new Error(`Too many timeouts at page ${pageIndex}.`);
+            }
+        }
+        onProgress(100);
+    }
+
+    // 0x05DD: leave serial mode (reboots into the bootloader under ENABLE_OVERLAY).
+    async function reboot() {
+        if (!port) return;
+        await sendMessage(createMessage(MSG_REBOOT, 0));
+    }
+
     window.LBJSerial = {
         BAUDRATE,
         LOG_BASE,
         LOG_SIZE,
         READ_CHUNK,
+        FW_PAGE_SIZE,
+        FW_MIN_BOOTLOADER,
         MSG_DEV_INFO_REQ,
         MSG_DEV_INFO_RESP,
         MSG_READ_FLASH,
         MSG_READ_FLASH_RESP,
+        MSG_REBOOT,
+        MSG_NOTIFY_DEV_INFO,
+        MSG_NOTIFY_BL_VER,
+        MSG_PROG_FW,
+        MSG_PROG_FW_RESP,
+        MSG_SLOT_INFO,
+        MSG_SLOT_INFO_RESP,
+        MSG_SLOT_ERASE,
+        MSG_SLOT_ERASE_RESP,
+        MSG_SLOT_WRITE,
+        MSG_SLOT_WRITE_RESP,
+        MSG_SLOT_VALIDATE,
+        MSG_SLOT_VALIDATE_RESP,
+        MSG_PROFILE_ERASE,
+        MSG_PROFILE_ERASE_RESP,
+        MSG_APP_INFO,
+        MSG_APP_INFO_RESP,
+        MSG_APP_ERASE,
+        MSG_APP_ERASE_RESP,
+        MSG_APP_WRITE,
+        MSG_APP_WRITE_RESP,
+        MSG_APP_VALIDATE,
+        MSG_APP_VALIDATE_RESP,
         isSupported,
         connect,
         disconnect,
@@ -416,6 +737,20 @@
         hasExternalFlashSupport,
         readExternalFlashChunk,
         readLog,
+        exchange,
+        slotInfo,
+        slotErase,
+        slotResetConfig,
+        slotWriteChunkRetry,
+        slotValidate,
+        appInfo,
+        appErase,
+        appWriteChunkRetry,
+        appValidate,
+        waitForBootloader,
+        performHandshake,
+        programFirmware,
+        reboot,
         // Operation guard from the UV Studio serial controller, so the status
         // pill can show "Reading LBJ Log…" and block re-entry.
         beginOperation: (name, options) => client.beginOperation(name, options),
