@@ -1,6 +1,6 @@
 window.UVSTUDIO_LOCALES = window.UVSTUDIO_LOCALES || {};
 window.UVSTUDIO_LOCALES.zh = {
-  "flash_catalog_label": "F4HWN 官方固件",
+  "flash_catalog_label": "LBJ固件",
   "flash_catalog_placeholder": "— 选择版本 —",
   "flash_catalog_or": "或加载本地文件",
   "slot_catalog_label": "兼容多重启动的 F4HWN 固件",
