@@ -550,6 +550,9 @@ window.UVSTUDIO_LOCALES.en = {
   "flashPageNote": "<strong>Note:</strong> flashing replaces the radio's main firmware. Use Chrome, Edge or Opera on desktop with a K-plug cable, and do not unplug during the write.",
   "slotsPageNote": "<strong>Note:</strong> firmware slots only touch the external flash, never the main firmware. Hold MENU at power-on to pick a slot.",
   "appsPageNote": "<strong>Note:</strong> apps come from archive/apps in the online archive and are written to the external flash only. Launch them from the radio's F + 7 menu.",
+  "studio_nav_calibration_backup": "Calibration backup",
+  "calibrationRestoreConfirm": "Restoring writes the calibration data to the radio and reboots it. Calibration is device-specific; restoring another radio's backup can degrade transmit performance. Continue?",
+  "restoreDescription": "Write a backup of this radio's calibration (.dat) back to it and reboot. Calibration is device-specific — never restore a file from another radio.",
   "appCatalogHint": "Apps are downloaded from the online archive.",
 
   "arch_meta_selected": "Selected {0} · {1}",

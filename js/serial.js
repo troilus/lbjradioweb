@@ -22,6 +22,12 @@
     const MSG_READ_FLASH_RESP = 0x0739;
     const MSG_REBOOT = 0x05DD;
 
+    // Calibration EEPROM (App/app/uart.c) — UV Studio's 0x051B/0x051D pair.
+    const MSG_READ_EEPROM = 0x051B;
+    const MSG_READ_EEPROM_RESP = 0x051C;
+    const MSG_WRITE_EEPROM = 0x051D;
+    const MSG_WRITE_EEPROM_RESP = 0x051E;
+
     // DFU (bootloader) flashing — UV Studio's 0x0518/0x0530/0x0519 handshake.
     const MSG_NOTIFY_DEV_INFO = 0x0518;
     const MSG_NOTIFY_BL_VER = 0x0530;
@@ -57,6 +63,15 @@
     const COMMAND_RETRIES = 3;
     const DEVICE_INFO_TIMEOUT_MS = 5000;
     const READ_BUFFER_LIMIT = 1 << 20;
+
+    // Calibration layout (UV Studio flash.js): 512 bytes at 0x1E00 for
+    // firmware < v5, 0xB000 from v5 on. The radio moves it so a firmware
+    // update never overwrites the per-device calibration.
+    const CALIB_SIZE = 512;
+    const CALIB_CHUNK = 16;
+    const CALIB_OFFSET_LEGACY = 0x1E00;
+    const CALIB_OFFSET_V5 = 0xB000;
+    const EEPROM_TIMEOUT_MS = 3000;
 
     const controller = window.UVStudioSerial;
     /* UV Studio's ownership controller hands the page a client handle; every
@@ -421,6 +436,88 @@
         return image;
     }
 
+    // ---- Calibration (EEPROM) ----------------------------------------------
+
+    // Firmware name from 0x0514, e.g. "F4HWN v5.5.0" → 0xB000. Names without
+    // a version fall back to the legacy offset, exactly like UV Studio.
+    function calibrationOffset(deviceName) {
+        const match = /v(\d+(?:\.\d+)*)/i.exec(String(deviceName || ""));
+        if (!match) return CALIB_OFFSET_LEGACY;
+        const major = Number.parseInt(match[1].split(".")[0], 10);
+        return major >= 5 ? CALIB_OFFSET_V5 : CALIB_OFFSET_LEGACY;
+    }
+
+    function calibrationError(offset) {
+        const error = new Error(`EEPROM error at 0x${offset.toString(16).toUpperCase()}.`);
+        error.code = "EEPROM_ERROR";
+        error.offset = offset;
+        return error;
+    }
+
+    // Request payload: offset u16 @0, length u16 @2, timestamp u32 @4.
+    function calibrationRequest(offset, length, timestamp) {
+        const data = new Uint8Array(8);
+        const view = new DataView(data.buffer);
+        view.setUint16(0, offset, true);
+        view.setUint16(2, length, true);
+        view.setUint32(4, timestamp, true);
+        return data;
+    }
+
+    // 0x051B → 0x051C: reply is offset u16 @0, size u8 @2, data @4.
+    async function readCalibrationChunk(offset, length, timestamp) {
+        const response = await exchange(
+            MSG_READ_EEPROM, calibrationRequest(offset, length, timestamp),
+            MSG_READ_EEPROM_RESP, EEPROM_TIMEOUT_MS);
+        if (!response || response.length < 4 + length) throw calibrationError(offset);
+        const view = new DataView(
+            response.buffer, response.byteOffset, response.byteLength);
+        if (view.getUint16(0, true) !== offset || response[2] !== length) {
+            throw calibrationError(offset);
+        }
+        return response.slice(4, 4 + length);
+    }
+
+    async function readCalibration(timestamp, offset, onProgress) {
+        const image = new Uint8Array(CALIB_SIZE);
+        for (let position = 0; position < CALIB_SIZE; position += CALIB_CHUNK) {
+            const chunk = await readCalibrationChunk(offset + position, CALIB_CHUNK, timestamp);
+            image.set(chunk, position);
+            if (onProgress) onProgress((position + CALIB_CHUNK) / CALIB_SIZE);
+        }
+        return image;
+    }
+
+    // 0x051D → 0x051E: offset u16 @0, length u16 @2, commit flag @3,
+    // timestamp u32 @4, 16 data bytes @8 (24-byte payload).
+    async function writeCalibrationChunk(offset, timestamp, chunk) {
+        const data = new Uint8Array(24);
+        const view = new DataView(data.buffer);
+        view.setUint16(0, offset, true);
+        view.setUint16(2, CALIB_CHUNK, true);
+        data[3] = 1;
+        view.setUint32(4, timestamp, true);
+        data.set(chunk, 8);
+
+        const response = await exchange(
+            MSG_WRITE_EEPROM, data, MSG_WRITE_EEPROM_RESP, EEPROM_TIMEOUT_MS);
+        if (!response || response.length < 2) throw calibrationError(offset);
+        const viewResponse = new DataView(
+            response.buffer, response.byteOffset, response.byteLength);
+        if (viewResponse.getUint16(0, true) !== offset) throw calibrationError(offset);
+    }
+
+    async function writeCalibration(image, timestamp, offset, onProgress) {
+        if (image.length !== CALIB_SIZE) {
+            throw new Error(`Calibration image must be ${CALIB_SIZE} bytes.`);
+        }
+        for (let position = 0; position < CALIB_SIZE; position += CALIB_CHUNK) {
+            await writeCalibrationChunk(
+                offset + position, timestamp, image.subarray(position, position + CALIB_CHUNK));
+            if (onProgress) onProgress((position + CALIB_CHUNK) / CALIB_SIZE);
+        }
+    }
+
     // ---- Generic request/response -------------------------------------------
 
     /* Send one command and wait for its reply type. `data` is the payload after
@@ -707,6 +804,14 @@
         MSG_READ_FLASH,
         MSG_READ_FLASH_RESP,
         MSG_REBOOT,
+        MSG_READ_EEPROM,
+        MSG_READ_EEPROM_RESP,
+        MSG_WRITE_EEPROM,
+        MSG_WRITE_EEPROM_RESP,
+        CALIB_SIZE,
+        CALIB_CHUNK,
+        CALIB_OFFSET_LEGACY,
+        CALIB_OFFSET_V5,
         MSG_NOTIFY_DEV_INFO,
         MSG_NOTIFY_BL_VER,
         MSG_PROG_FW,
@@ -737,6 +842,9 @@
         hasExternalFlashSupport,
         readExternalFlashChunk,
         readLog,
+        calibrationOffset,
+        readCalibration,
+        writeCalibration,
         exchange,
         slotInfo,
         slotErase,

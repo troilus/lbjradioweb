@@ -10,7 +10,7 @@
     "use strict";
 
     const VERSION = "0.20";
-    const ROUTES = ["lbj-log", "flash", "slots", "apps"];
+    const ROUTES = ["calibration", "flash", "slots", "apps", "lbj-log"];
 
     const serial = window.LBJSerial;
     const controller = window.UVStudioSerial;
@@ -33,6 +33,8 @@
 
     const operationTranslationKeys = {
         "read-lbj-log": "studio_operation_read_lbj_log",
+        "dump-calibration": "studio_operation_dump_calibration",
+        "restore-calibration": "studio_operation_restore_calibration",
         "flash-firmware": "studio_operation_flash_firmware",
         "slots-refresh": "studio_operation_slots_refresh",
         "slots-write": "studio_operation_slots_write",
@@ -48,6 +50,7 @@
     // its own warning without duplicating the markup.
     const INFO_KEYS = {
         "lbj-log": "lbjPageNote",
+        "calibration": "infoBoxDump",
         "flash": "flashPageNote",
         "slots": "slotsPageNote",
         "apps": "appsPageNote"

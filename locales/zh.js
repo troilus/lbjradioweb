@@ -550,6 +550,9 @@ window.UVSTUDIO_LOCALES.zh = {
   "flashPageNote": "<strong>注意：</strong> 刷固件会覆盖电台的主固件。请使用桌面版 Chrome / Edge / Opera 与 K 头写频线，刷写过程中不要断开连接。",
   "slotsPageNote": "<strong>注意：</strong> 多固件只写入外部 flash，不影响电台主固件。开机时按住 MENU 即可选择插槽。",
   "appsPageNote": "<strong>注意：</strong> 应用来自在线归档目录的 archive/apps，只写入外部 flash。安装后可在电台的 F + 7 菜单中启动。",
+  "studio_nav_calibration_backup": "校准备份",
+  "calibrationRestoreConfirm": "恢复会把校准数据写入对讲机并重启。校准数据与设备一一对应，写入其他对讲机的备份可能导致发射指标异常。确定继续吗？",
+  "restoreDescription": "将本机备份的校准文件（.dat）写回对讲机并重启。校准数据与设备一一对应，切勿写入其他对讲机的备份。",
   "appCatalogHint": "应用来自在线归档目录。",
 
   "arch_meta_selected": "已选择 {0} · {1}",

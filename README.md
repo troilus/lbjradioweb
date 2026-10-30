@@ -4,14 +4,15 @@
 `0x018000..0x01FFFF`（1024 条 × 32 字节）里的 LBJ 车次日志读回来，在页面上列成表格，
 导出 CSV 或原始 32 KiB 镜像。
 
-同一个页面还提供另外三个工具页（外观与 UV Studio 一致）：
+同一个页面还提供另外四个工具页（外观与 UV Studio 一致）：
 
 | 侧栏 | 作用 |
 | --- | --- |
-| **LBJ 车次日志** | 读取 / 导出车次日志（本页只读） |
+| **校准备份** | 备份 / 恢复设备专属的 EEPROM 校准数据 |
 | **刷固件** | DFU 模式整机刷写固件（会覆盖主固件） |
 | **多固件** | 把多个固件写进外部 flash 的插槽，开机按住 `MENU` 选择 |
 | **管理安装 APP** | 把 `.app` 覆盖程序装进外部 flash 的应用槽，电台 `F + 7` 菜单启动 |
+| **LBJ 车次日志** | 读取 / 导出车次日志（本页只读） |
 
 页面外观、布局、串口连接方式**照搬 UV Studio**（`armel.github.io/uvstudio`）：同一套
 顶栏 / 侧栏 / 状态胶囊 / 主题切换 / 语言选择 / 表格 / 进度条 / Console，同一套
@@ -25,9 +26,20 @@
 
 - 先把 UV Studio / K5Viewer 关掉 —— 串口同一时刻只能被一个页面占用。
 - 用 K 头写频线连接电台。
-- 车次日志、多固件、APP 都在电台正常开机状态下操作；刷固件需要先进入 DFU 模式
+- 车次日志、校准备份、多固件、APP 都在电台正常开机状态下操作；刷固件需要先进入 DFU 模式
   （按住 `PTT` 开机）。
-- 四个页面通过地址栏 hash 切换：`#lbj-log`、`#flash`、`#slots`、`#apps`。
+- 五个页面通过地址栏 hash 切换：`#calibration`、`#flash`、`#slots`、`#apps`、`#lbj-log`。
+
+### 校准备份
+
+1. **备份** 页签点 **读取校准数据**：页面通过 `0x051B` 按 16 字节分块读出 512 字节
+   EEPROM 校准数据，完成后出现 `calibration.dat` 下载链接。
+2. **恢复** 页签选择本机的 `.dat`（必须正好 512 字节），确认后通过 `0x051D` 写回，
+   最后用 `0x05DD` 重启电台。
+
+校准数据的地址由 `0x0514` 返回的固件版本决定：v5 及以上在 `0xB000`，更早的固件在
+`0x1E00`。校准数据与每台设备一一对应，恢复其他电台的备份可能影响发射指标；
+换固件不会清除它，所以升级前备份、出问题时恢复即可。
 
 ### LBJ 车次日志
 
@@ -96,14 +108,14 @@
 ## 文件
 
 ```
-index.html            UV Studio 外壳 + 四个工具视图
+index.html            UV Studio 外壳 + 五个工具视图
 css/{core,studio,tools}.css   原样内置自 UV Studio（见下"来源"）
 css/lbj-log.css       本页自己的少量样式（宽屏/窄屏表格、等宽数字、列表工具栏）
 js/studio-preferences.js      原样内置
 js/studio-i18n.js             原样内置（data-i18n 机制）
 js/studio-serial.js           原样内置（串口所有权仲裁）
 js/ui.js              外壳接线：Console / 进度条 / 状态胶囊 / 主题 / hash 路由 / 确认框
-js/serial.js          串口协议：连接 + 0x0514 + 0x0738/0x0739 + 插槽 / APP / DFU 命令
+js/serial.js          串口协议：连接 + 0x0514 + 0x0738/0x0739 + 校准 EEPROM / 插槽 / APP / DFU 命令
 js/lbj-log.js         纯模块：32 字节记录解析 + CRC8 + CSV（可选 Node CLI）
 js/radio-format.js    纯模块：CRC32、FMB1 插槽头、FAP1 应用头、版本比较
 js/catalog.js         纯模块：归档站目录（GitHub Contents API）+ 缓存 + 分组 + 下载
@@ -111,6 +123,7 @@ js/app.js             LBJ 车次日志视图
 js/view-flash.js      刷固件视图
 js/view-slots.js      多固件视图
 js/view-apps.js       管理安装 APP 视图
+js/view-calibration.js 校准备份 / 恢复视图
 js/*.test.js          Node 自测（node --test）
 locales/{zh,en}.js    内置自 UV Studio，并在结尾追加本页新增的键
 ```
@@ -140,8 +153,9 @@ locales/{zh,en}.js    内置自 UV Studio，并在结尾追加本页新增的键
 
 | 本仓库 | 上游 | 版本参数 |
 | --- | --- | --- |
-| `js/serial.js` | `js/flash.js`（连接 / 0x0514 / 0x0738/0x0739 / 插槽 / APP / DFU） | `?v=84` |
+| `js/serial.js` | `js/flash.js`（连接 / 0x0514 / 0x0738/0x0739 / 0x051B + 0x051D 校准 / 插槽 / APP / DFU） | `?v=84` |
 | `js/ui.js` | `js/studio.js`（状态胶囊、路由）+ `js/studio-serial.js`（操作锁） | `?v=19` / `?v=2` |
+| `js/view-calibration.js` | `js/flash.js`（校准备份 / 恢复流程） | `?v=84` |
 | `js/view-flash.js` | `js/flash.js`（DFU 刷写流程） | `?v=84` |
 | `js/view-slots.js` | `js/flash.js`（多固件插槽流程） | `?v=84` |
 | `js/view-apps.js` | `js/flash.js` + `js/app-catalog.js`（应用槽流程） | `?v=84` / `?v=20` |
@@ -158,12 +172,12 @@ Contents API 读取，因此不需要额外的清单文件：
 - 未认证的 GitHub API 每小时 60 次；触顶后页面会暂停请求，等 `x-ratelimit-reset`
   之后自动恢复，同时继续使用缓存；
 - 下载直连归档站的静态文件（`archive/...`），不经过 API；
-- 没有网络或 API 不可用时，三个工具页都仍然可以选本地文件。
+- 没有网络或 API 不可用时，五个工具页都仍然可以选本地文件。
 
 ## 自测
 
 ```sh
-node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js
+node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js
 node --check js/serial.js
 ```
 
@@ -189,6 +203,7 @@ cmp js.csv py.csv            # 应完全一致（中文表头用 --chinese）
 4. 多固件：写入一个插槽 → 刷新应显示「有效」→ 开机按住 `MENU` 应能启动它。
 5. APP：装一个 `.app` → 列表里应出现名称和版本 → 电台 `F + 7` 菜单应能启动。
 6. 刷固件：DFU 刷写后电台应正常重启，版本号与所选文件一致。
+7. 校准备份：备份得到 512 字节的 `calibration.dat` → 原样恢复 → 电台重启后收发应正常。
 
 ---
 
