@@ -1,9 +1,9 @@
-// Firmware & app catalog — lists the LBJ archive published at uvk1.xanyi.eu.org.
+// Firmware & app catalog — lists the LBJ archive published at lbj.xanyi.eu.org.
 //
-// Source of truth is the GitHub Contents API for
-// troilus/uv-k1-k5v3-firmware-custom-f4 @ main00 (the branch GitHub Pages serves
-// as https://uvk1.xanyi.eu.org). Only two requests are ever needed: the archive
-// root for .bin firmware images and archive/apps for .app overlays.
+// Source of truth is the GitHub Contents API for troilus/lbjradioweb @ main
+// (the branch GitHub Pages serves as https://lbj.xanyi.eu.org). Only two
+// requests are ever needed: the archive root for .bin firmware images and
+// archive/apps for .app overlays.
 //
 // Unauthenticated GitHub API calls are limited to 60 per hour per IP, so a
 // successful listing is cached in localStorage for CACHE_TTL_MS, and a 403/429
@@ -23,13 +23,13 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const REPO = 'troilus/uv-k1-k5v3-firmware-custom-f4';
-  const BRANCH = 'main00';
+  const REPO = 'troilus/lbjradioweb';
+  const BRANCH = 'main';
   const ARCHIVE_PATH = 'archive';
   const APPS_PATH = 'archive/apps';
   // Public download host (GitHub Pages, CORS: *). API `download_url`s point at
   // raw.githubusercontent.com, which is rate-limited the same way as the API.
-  const DOWNLOAD_BASE = 'https://uvk1.xanyi.eu.org/archive';
+  const DOWNLOAD_BASE = 'https://lbj.xanyi.eu.org/archive';
 
   const API_BASE = 'https://api.github.com/repos/' + REPO + '/contents/';
   const CACHE_TTL_MS = 10 * 60 * 1000;

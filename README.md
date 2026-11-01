@@ -164,14 +164,15 @@ locales/{zh,en}.js    内置自 UV Studio，并在结尾追加本页新增的键
 
 ## 在线固件 / APP 目录
 
-固件列表来自归档站的 `archive/`，APP 列表来自 `archive/apps/`，两者都通过 GitHub
-Contents API 读取，因此不需要额外的清单文件：
+固件列表来自本仓库的 `archive/`，APP 列表来自 `archive/apps/`，两者都通过 GitHub
+Contents API 的 `main` 分支读取，因此不需要额外的清单文件：
 
+- 发布新版本时，把 `<名称>.v<版本>.bin` / `.app` 提交到对应目录即可；
 - 文件名里的版本号（如 `LBJRADIO.v5.5.0.bin`）用来分组和排序；
 - 列表缓存在 `localStorage` 10 分钟，过期后先用旧缓存、后台再刷新；
 - 未认证的 GitHub API 每小时 60 次；触顶后页面会暂停请求，等 `x-ratelimit-reset`
   之后自动恢复，同时继续使用缓存；
-- 下载直连归档站的静态文件（`archive/...`），不经过 API；
+- 下载直连 GitHub Pages 上的静态文件（`archive/...`），不经过 API；
 - 没有网络或 API 不可用时，五个工具页都仍然可以选本地文件。
 
 ## 自测

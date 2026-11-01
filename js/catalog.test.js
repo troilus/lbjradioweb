@@ -55,7 +55,7 @@ test('categorizeFirmware groups by edition, newest first', () => {
   const lbj = groups.find(group => group.label === 'LBJRADIO');
   assert.deepEqual(lbj.entries.map(entry => entry.version), ['5.10.0', '5.5.0', '5.4.0']);
   assert.equal(lbj.entries[0].size, 500);
-  assert.equal(lbj.entries[0].url, 'https://uvk1.xanyi.eu.org/archive/LBJRADIO.v5.10.0.bin');
+  assert.equal(lbj.entries[0].url, 'https://lbj.xanyi.eu.org/archive/LBJRADIO.v5.10.0.bin');
 });
 
 test('categorizeApps groups and sorts versions numerically', () => {
@@ -67,13 +67,13 @@ test('categorizeApps groups and sorts versions numerically', () => {
   assert.equal(groups.length, 2);
   const main = groups.find(group => group.label === 'LBJRX');
   assert.deepEqual(main.entries.map(entry => entry.version), ['5.10.0', '5.5.0']);
-  assert.equal(main.entries[0].url, 'https://uvk1.xanyi.eu.org/archive/apps/LBJRX.v5.10.0.app');
+  assert.equal(main.entries[0].url, 'https://lbj.xanyi.eu.org/archive/apps/LBJRX.v5.10.0.app');
 });
 
 test('downloadUrl encodes each path segment', () => {
   assert.equal(
     catalog.downloadUrl('apps/LBJ RX.v5.app'),
-    'https://uvk1.xanyi.eu.org/archive/apps/LBJ%20RX.v5.app'
+    'https://lbj.xanyi.eu.org/archive/apps/LBJ%20RX.v5.app'
   );
 });
 

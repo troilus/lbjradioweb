@@ -1,8 +1,9 @@
 /* 管理安装APP — overlay-app manager (精简版).
  *
  * Same 0x073x command family UV Studio uses (js/flash.js flash.js?v=84). The
- * catalog is the flat archive/apps folder of uvk1.xanyi.eu.org, so instead of
- * UV Studio's card grid this page pairs a search box with one version dropdown.
+ * catalog is the flat archive/apps folder published by this repository's Pages
+ * site, so instead of UV Studio's card grid this page pairs a search box with one
+ * version dropdown.
  */
 ;(function () {
     "use strict";
