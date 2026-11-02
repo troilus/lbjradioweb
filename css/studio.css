@@ -179,6 +179,8 @@ body {
     margin-top: 0; padding: 12px 12px 4px; border-top: 1px solid var(--border);
     font-size: 11px; color: var(--text-muted);
 }
+.sidebar-hits { display: inline-block; line-height: 0; margin-bottom: 8px; }
+.sidebar-hits img { display: block; height: 20px; width: auto; }
 
 /* ── Stage & panes ── */
 .stage { flex: 1 1 auto; overflow-y: auto; background: var(--bg); min-width: 0; }
