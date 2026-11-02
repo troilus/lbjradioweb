@@ -226,10 +226,10 @@
 
                         <h4>2.1.3 小技巧</h4>
                         <ul class="guide-tips">
-                            <li><strong>快捷键。</strong>菜单 → 按键 → <code>F1Shrt</code> / <code>F1Long</code> / <code>F2Shrt</code> / <code>F2Long</code> / <code>M Long</code> 可以设为 <code>LBJMSG</code>、<code>TDCMSG</code> 或 <code>MSGBOX</code>。<code>MSGBOX</code> 一个键在 LBJ / TDCS 窗口之间切换。</li>
+                            <li><strong>快捷键。</strong>菜单 → 按键 → <code>F1Shrt</code> / <code>F1Long</code> / <code>F2Shrt</code> / <code>F2Long</code> / <code>M Long</code> 可以设为 <code>LBJMSG</code>、<code>TDCMSG</code>、<code>KLWMSG</code> 或 <code>MSGBOX</code>。<code>MSGBOX</code> 一个键在 LBJ → TDCS → KLW 三个窗口之间循环。</li>
                             <li><strong>二维码。</strong>LBJ 实时报文右上角 <code>km</code> 后面有 <code>*</code> 时，按 <kbd>*</kbd> 显示二维码，扫码查看列车位置。只有实时页保留坐标，存盘记录没有。</li>
                             <li><strong>弱信号。</strong>把 <code>SQL</code> 设为 <code>0</code>，或打开监听，让载波能打开静噪。</li>
-                            <li><strong>双守。</strong>把 A/B 两个信道分别设为联控（普通 FM）、LBJ、TDC 中的两个，<code>RxMode</code> 选 <code>DUAL RX RESPOND</code> 或 <code>MAIN TX DUAL RX</code>。</li>
+                            <li><strong>双守 / 多守。</strong>把 A/B 两个信道分别设为联控（普通 FM）、LBJ、TDC 中的两个，<code>RxMode</code> 选 <code>MAIN TX DUAL RX</code>。要同时守 3/4 个信道，选 <code>FULL WATCH</code>，并在 <b>电台 → MON3 / MON4</b> 里各选一个存储信道；S 表行最左边会显示 <code>3</code>/<code>4</code> 徽标，正在接收的那个闪烁。</li>
                             <li><strong>存信道。</strong>最好把设置好的频率和模式存储为信道，方便快速切换。</li>
                         </ul>
 
@@ -270,7 +270,19 @@
                             </table>
                         </div>
 
-                        <h4>2.2.3 其他菜单</h4>
+                        <h4>2.2.3 KLW 菜单</h4>
+                        <p class="tab-description">菜单里显示为 <code>KLW</code>，和 TDC 分开。</p>
+                        <div class="guide-table-wrap">
+                            <table class="guide-table">
+                                <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>KLWMSG</code></td><td>打开列尾（KLW）解码窗口。</td></tr>
+                                    <tr><td><code>KLWPOP</code></td><td>窗口自动关闭：<code>ON</code> / <code>3s</code> / <code>5s</code> / <code>10s</code> / <code>60s</code>。</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>2.2.4 其他菜单</h4>
                         <p class="tab-description">「全部」是平铺视图，这里不再重复。</p>
 
                         <details class="guide-group" open>
@@ -279,7 +291,7 @@
                                 <table class="guide-table">
                                     <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
                                     <tbody>
-                                        <tr><td>模式 <code>Mode</code></td><td>选择调制方式：FM、AM、USB、LBJ、TDC 等。</td></tr>
+                                        <tr><td>模式 <code>Mode</code></td><td>选择调制方式：FM、AM、USB、LBJ、TDC、KLW 等。</td></tr>
                                         <tr><td>步进 <code>Step</code></td><td>频率步进。</td></tr>
                                         <tr><td>功率 <code>Power</code></td><td>当前信道发射功率（<code>USER</code>、<code>LOW 1</code>–<code>LOW 5</code>、<code>MID</code>、<code>HIGH</code>）。</td></tr>
                                         <tr><td><code>RxDCS</code></td><td>接收 DCS 数字亚音。</td></tr>
@@ -330,7 +342,7 @@
                                         <tr><td><code>F1Long</code></td><td>侧键 1 长按动作。</td></tr>
                                         <tr><td><code>F2Shrt</code></td><td>侧键 2 短按动作。</td></tr>
                                         <tr><td><code>F2Long</code></td><td>侧键 2 长按动作。</td></tr>
-                                        <tr><td><code>M Long</code></td><td>长按 <kbd>M</kbd> 的动作。可设为 <code>LBJMSG</code>、<code>TDCMSG</code>、<code>MSGBOX</code>。</td></tr>
+                                        <tr><td><code>M Long</code></td><td>长按 <kbd>M</kbd> 的动作。可设为 <code>LBJMSG</code>、<code>TDCMSG</code>、<code>KLWMSG</code>、<code>MSGBOX</code>；MSGBOX 在 LBJ → TDCS → KLW 之间循环。</td></tr>
                                         <tr><td><code>KeyLck</code></td><td>自动键盘锁延时。</td></tr>
                                         <tr><td><code>SetPTT</code></td><td>PTT 模式：<code>CLASSIC</code> / <code>ONEPUSH</code>。</td></tr>
                                         <tr><td><code>SetLck</code></td><td>锁键范围：<code>KEYS</code> / <code>KEYS+PTT</code>。</td></tr>
@@ -406,14 +418,16 @@
                         </details>
 
                         <details class="guide-group" open>
-                            <summary><span>电台</span><span class="guide-count">6 项</span></summary>
+                            <summary><span>电台</span><span class="guide-count">8 项</span></summary>
                             <div class="guide-table-wrap">
                                 <table class="guide-table">
                                     <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
                                     <tbody>
                                         <tr><td><code>SQL</code></td><td>静噪门限；<code>0</code> 为常开，弱信号用。</td></tr>
                                         <tr><td><code>VOX</code></td><td>声控发射。</td></tr>
-                                        <tr><td><code>RxMode</code></td><td>单守 / 双守：<code>MAIN ONLY</code>、<code>DUAL RX RESPOND</code>、<code>CROSS BAND</code>、<code>MAIN TX DUAL RX</code>。</td></tr>
+                                        <tr><td><code>RxMode</code></td><td>单守 / 双守 / 多守：<code>MAIN ONLY</code>、<code>MAIN TX DUAL RX</code>、<code>FULL WATCH</code>。FULL WATCH 会额外轮询 MON3/MON4。</td></tr>
+                                        <tr><td><code>MON3</code></td><td>第 3 个守候信道（存储信道）；<code>--</code> 表示不设置。</td></tr>
+                                        <tr><td><code>MON4</code></td><td>第 4 个守候信道（存储信道）；<code>--</code> 表示不设置。</td></tr>
                                         <tr><td><code>STE</code></td><td>普通信道尾音消除。</td></tr>
                                         <tr><td><code>RP STE</code></td><td>中继尾音消除。</td></tr>
                                         <tr><td><code>Roger</code></td><td>发信结束音：<code>OFF</code> / <code>ROGER</code> / <code>DIDI</code>。</td></tr>
