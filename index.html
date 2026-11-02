@@ -9,6 +9,7 @@
 <link href="css/studio.css" rel="stylesheet">
 <link href="css/tools.css" rel="stylesheet">
 <link href="css/lbj-log.css" rel="stylesheet">
+<link href="css/guide.css" rel="stylesheet">
 </head>
 <body data-theme="light">
 
@@ -47,7 +48,7 @@
         </span>
         <span class="sb-title"><span class="sb-name">UV <b>Tools</b></span><span class="sb-sub">LBJ Radio</span></span>
         <span class="topbar-divider"></span>
-        <span class="section-name" id="sectionName" data-i18n="studio_nav_lbj_log">LBJ Log</span>
+        <span class="section-name" id="sectionName" data-i18n="studio_nav_guide">使用说明</span>
     </div>
     <div class="topbar-actions">
         <div class="studio-serial-status" id="studioSerialStatus"
@@ -89,7 +90,13 @@
     <aside class="sidebar" id="studioSidebar">
         <div class="nav-group">
             <div class="nav-label">UV Tools</div>
-            <button class="nav-item active" aria-current="page" data-route="calibration"
+            <button class="nav-item active" aria-current="page" data-route="guide"
+                    data-tool-view="guide" data-name="User guide"
+                    data-section-i18n="studio_nav_guide">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 5.5v15"/><path d="M8 7h8M8 10.5h8M8 14h5"/></svg>
+                <span class="nav-item-label" data-i18n="studio_nav_guide">使用说明</span>
+            </button>
+            <button class="nav-item" data-route="calibration"
                     data-tool-view="calibration" data-name="Calibration backup"
                     data-section-i18n="studio_nav_calibration_backup">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
@@ -129,7 +136,7 @@
           <div class="container">
 
             <!-- ─────────── LBJ Log ─────────── -->
-            <div class="tool-view active" id="lbj-log-content" role="region">
+            <div class="tool-view" id="lbj-log-content" role="region" hidden>
                 <section class="section">
                     <p class="tab-description" data-i18n="lbjDescription">Read the LBJ train log from the radio's external flash (0x018000–0x01FFFF, 1024 × 32 bytes) and export it as CSV.</p>
                     <button id="lbjReadBtn" data-i18n="lbjRead">Read LBJ log</button>
@@ -172,6 +179,273 @@
                     </div>
                     <p class="tab-description" id="lbjEmpty" hidden data-i18n="lbjEmpty">No records yet.</p>
                 </div>
+            </div>
+
+            <!-- ─────────── User guide ─────────── -->
+            <div class="tool-view active" id="guide-content" role="region">
+                <article class="guide">
+                    <header class="guide-head">
+                        <h1>使用说明</h1>
+                        <p class="tab-description">LBJ / TDCS 固件与 APP 的基本用法。频率等参数见对应页面，这里只写操作和菜单。</p>
+                    </header>
+
+                    <section class="guide-section" aria-labelledby="guide-before">
+                        <h2 id="guide-before"><span class="guide-num">1</span>刷机之前</h2>
+                        <ol class="guide-list">
+                            <li><strong>原有固件会被覆盖。</strong>刷机会抹掉电台原有主固件，原厂固件不会保留。</li>
+                            <li><strong>先备份校准。</strong>打开 <a href="#calibration">校准备份</a> 读取并保存 <code>calibration.dat</code>。校准数据是本机专属，换机恢复可能影响发射指标。</li>
+                            <li><strong>多固件（可选）。</strong>支持多固件的 F4HWN 固件可以把 LBJ 固件写入固件插槽。开机前按住 <kbd>M</kbd> 进入选择器；选中的固件将作为主固件启动。写槽本身只动外部 flash，不影响当前主固件。</li>
+                            <li><strong>固件版和 APP 版二选一。</strong>固件版把解码、日志、双守和快捷键都做进固件，功能更全；APP 版（<code>LBJRX</code> / <code>TDCSRX</code>）可装在 LBJ 固件或支持 APP 的 F4HWN 固件上，从 <kbd>F</kbd> + <kbd>7</kbd> 启动，进入后自动设置频率。</li>
+                        </ol>
+                    </section>
+
+                    <section class="guide-section" aria-labelledby="guide-operation">
+                        <h2 id="guide-operation"><span class="guide-num">2</span>操作说明</h2>
+
+                        <h3>2.1 快速上手</h3>
+
+                        <h4>2.1.1 LBJ</h4>
+                        <ol class="guide-steps">
+                            <li>频率模式输入 LBJ 频率。</li>
+                            <li>菜单 → 信道 → 模式（<code>Mode</code>）→ <code>LBJ</code>。</li>
+                            <li>打开静噪或监听，等待解码窗口弹出。窗口里 <kbd>UP</kbd>/<kbd>DOWN</kbd> 翻历史，<kbd>MENU</kbd> 切换实时 / 日志 / 详情，<kbd>EXIT</kbd> 关闭。</li>
+                        </ol>
+
+                        <h4>2.1.2 TDCS</h4>
+                        <ol class="guide-steps">
+                            <li>频率模式输入 TDCS 频率。</li>
+                            <li>菜单 → 信道 → 模式（<code>Mode</code>）→ <code>TDC</code>。</li>
+                            <li>等待解码窗口弹出。<kbd>UP</kbd>/<kbd>DOWN</kbd> 翻历史，<kbd>6</kbd>/<kbd>9</kbd> 翻页，<kbd>2</kbd> 清空历史，<kbd>EXIT</kbd> 关闭。</li>
+                        </ol>
+
+                        <h4>2.1.3 小技巧</h4>
+                        <ul class="guide-tips">
+                            <li><strong>快捷键。</strong>菜单 → 按键 → <code>F1Shrt</code> / <code>F1Long</code> / <code>F2Shrt</code> / <code>F2Long</code> / <code>M Long</code> 可以设为 <code>LBJMSG</code>、<code>TDCMSG</code> 或 <code>MSGBOX</code>。<code>MSGBOX</code> 一个键在 LBJ / TDCS 窗口之间切换。</li>
+                            <li><strong>二维码。</strong>LBJ 实时报文右上角 <code>km</code> 后面有 <code>*</code> 时，按 <kbd>*</kbd> 显示二维码，扫码查看列车位置。只有实时页保留坐标，存盘记录没有。</li>
+                            <li><strong>弱信号。</strong>把 <code>SQL</code> 设为 <code>0</code>，或打开监听，让载波能打开静噪。</li>
+                            <li><strong>双守。</strong>把 A/B 两个信道分别设为联控（普通 FM）、LBJ、TDC 中的两个，<code>RxMode</code> 选 <code>DUAL RX RESPOND</code> 或 <code>MAIN TX DUAL RX</code>。</li>
+                            <li><strong>存信道。</strong>最好把设置好的频率和模式存储为信道，方便快速切换。</li>
+                        </ul>
+
+                        <h4>2.1.4 APP 版</h4>
+                        <p>在 <a href="#apps">管理安装 APP</a> 里装 <code>LBJRX</code> / <code>TDCSRX</code>，电台 <kbd>F</kbd> + <kbd>7</kbd> 启动。进入后自动设置频率，和固件版二选一即可。</p>
+
+                        <h3>2.2 设置菜单</h3>
+                        <p class="tab-description">只写菜单名称和用途。菜单 → 分类 → 项目；带箭头的分类点一下展开。</p>
+
+                        <h4>2.2.1 LBJ 菜单</h4>
+                        <div class="guide-table-wrap">
+                            <table class="guide-table">
+                                <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>LBJMSG</code></td><td>打开解码窗口，显示最新一条报文；没有报文时不打开。</td></tr>
+                                    <tr><td><code>LBJPOP</code></td><td>窗口自动关闭：<code>ON</code> / <code>3s</code> / <code>5s</code> / <code>10s</code> / <code>60s</code>；手动打开的不自动关。</td></tr>
+                                    <tr><td><code>LBJLOG</code></td><td><code>OFF</code> / <code>ON</code>：把每列车写入车次日志，默认 <code>OFF</code>。</td></tr>
+                                    <tr><td><code>LBJCLR</code></td><td><code>No</code> / <code>Yes</code>：清空车次日志。</td></tr>
+                                    <tr><td><code>LBJHST</code></td><td>打开已存日志列表，可看实时、列表、详情。</td></tr>
+                                    <tr><td><code>LBJPRI</code></td><td><code>--</code> / <code>A</code>–<code>E</code>：选择测距用的本机位置。</td></tr>
+                                    <tr><td><code>LBJLAT</code></td><td>输入纬度 <code>DD MM hh</code>。</td></tr>
+                                    <tr><td><code>LBJLON</code></td><td>输入经度 <code>DDD MM hh</code>。</td></tr>
+                                    <tr><td><code>LBJNUM</code></td><td><code>FULL</code> / <code>SIMPLE</code>：车号显示 8 位或 4 位。</td></tr>
+                                    <tr><td>语言 <code>LANG</code></td><td><code>CHN</code> / <code>ENG</code> / <code>ENLC</code>：界面语言（仅中文固件）。</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>2.2.2 TDCS 菜单</h4>
+                        <p class="tab-description">菜单里显示为 <code>TDC</code>。</p>
+                        <div class="guide-table-wrap">
+                            <table class="guide-table">
+                                <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>TDCMSG</code></td><td>打开 TDCS 解码窗口。</td></tr>
+                                    <tr><td><code>TDCPOP</code></td><td>窗口自动关闭：<code>ON</code> / <code>3s</code> / <code>5s</code> / <code>10s</code> / <code>60s</code>。</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4>2.2.3 其他菜单</h4>
+                        <p class="tab-description">「全部」是平铺视图，这里不再重复。</p>
+
+                        <details class="guide-group" open>
+                            <summary><span>信道</span><span class="guide-count">19 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>模式 <code>Mode</code></td><td>选择调制方式：FM、AM、USB、LBJ、TDC 等。</td></tr>
+                                        <tr><td>步进 <code>Step</code></td><td>频率步进。</td></tr>
+                                        <tr><td>功率 <code>Power</code></td><td>当前信道发射功率（<code>USER</code>、<code>LOW 1</code>–<code>LOW 5</code>、<code>MID</code>、<code>HIGH</code>）。</td></tr>
+                                        <tr><td><code>RxDCS</code></td><td>接收 DCS 数字亚音。</td></tr>
+                                        <tr><td><code>RxCTCS</code></td><td>接收 CTCSS 模拟亚音。</td></tr>
+                                        <tr><td><code>TxDCS</code></td><td>发射 DCS 数字亚音。</td></tr>
+                                        <tr><td><code>TxCTCS</code></td><td>发射 CTCSS 模拟亚音。</td></tr>
+                                        <tr><td><code>TxDir</code></td><td>差频方向：<code>OFF</code> / <code>+</code> / <code>−</code>。</td></tr>
+                                        <tr><td><code>TxOffs</code></td><td>差频偏移量。</td></tr>
+                                        <tr><td>宽窄带 <code>W/N</code></td><td>宽带 / 窄带。</td></tr>
+                                        <tr><td>存信道 <code>ChSave</code></td><td>把当前频率存入信道。</td></tr>
+                                        <tr><td>删信道 <code>ChDele</code></td><td>删除信道。</td></tr>
+                                        <tr><td>信道名 <code>ChName</code></td><td>编辑信道名称。</td></tr>
+                                        <tr><td><code>BzLock</code></td><td>忙信道锁：收到信号时禁止发射。</td></tr>
+                                        <tr><td><code>Compnd</code></td><td>压扩器，改善语音清晰度。</td></tr>
+                                        <tr><td><code>SetPwr</code></td><td>设置 <code>USER</code> 功率档的实际功率。</td></tr>
+                                        <tr><td><code>SetNFM</code></td><td>窄带宽度：<code>NARROW</code> / <code>NARROWER</code>。</td></tr>
+                                        <tr><td><code>SetCfg</code></td><td>多固件配置 bank，切换后重启。</td></tr>
+                                        <tr><td><code>TXLock</code></td><td>发射锁；本固件固定为开启，不可更改。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group">
+                            <summary><span>扫描</span><span class="guide-count">6 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>ChList</code></td><td>当前信道加入哪个扫描列表（<code>OFF</code> / <code>ALL</code> / <code>01</code>–<code>24</code>）。</td></tr>
+                                        <tr><td><code>ScList</code></td><td>默认扫描列表。</td></tr>
+                                        <tr><td><code>ScPri</code></td><td>优先扫描开关。</td></tr>
+                                        <tr><td><code>PriCh1</code></td><td>优先信道 1。</td></tr>
+                                        <tr><td><code>PriCh2</code></td><td>优先信道 2。</td></tr>
+                                        <tr><td><code>ScnRev</code></td><td>扫描恢复方式（载波、停止、超时）。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group" open>
+                            <summary><span>按键</span><span class="guide-count">9 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>F1Shrt</code></td><td>侧键 1 短按动作。</td></tr>
+                                        <tr><td><code>F1Long</code></td><td>侧键 1 长按动作。</td></tr>
+                                        <tr><td><code>F2Shrt</code></td><td>侧键 2 短按动作。</td></tr>
+                                        <tr><td><code>F2Long</code></td><td>侧键 2 长按动作。</td></tr>
+                                        <tr><td><code>M Long</code></td><td>长按 <kbd>M</kbd> 的动作。可设为 <code>LBJMSG</code>、<code>TDCMSG</code>、<code>MSGBOX</code>。</td></tr>
+                                        <tr><td><code>KeyLck</code></td><td>自动键盘锁延时。</td></tr>
+                                        <tr><td><code>SetPTT</code></td><td>PTT 模式：<code>CLASSIC</code> / <code>ONEPUSH</code>。</td></tr>
+                                        <tr><td><code>SetLck</code></td><td>锁键范围：<code>KEYS</code> / <code>KEYS+PTT</code>。</td></tr>
+                                        <tr><td><code>1 Call</code></td><td>一键呼叫信道；按 <kbd>9</kbd> 切换。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group">
+                            <summary><span>电源</span><span class="guide-count">2 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>BatSav</code></td><td>电池省电开关。</td></tr>
+                                        <tr><td><code>BatTxt</code></td><td>电量显示：<code>NONE</code> / <code>VOLTAGE</code> / <code>PERCENT</code> / <code>BOTH</code>。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group">
+                            <summary><span>显示</span><span class="guide-count">11 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>信息 <code>SysInf</code></td><td>显示固件版本和电池信息。</td></tr>
+                                        <tr><td><code>ChDisp</code></td><td>显示方式：频率 / 信道号 / 名称 / 名称+频率。</td></tr>
+                                        <tr><td><code>POnMsg</code></td><td>开机显示：<code>ALL</code> / <code>SOUND</code> / <code>MESSAGE</code> / <code>VOLTAGE</code> / <code>LOGO</code> / <code>NONE</code>。</td></tr>
+                                        <tr><td><code>BLTime</code></td><td>背光时间。</td></tr>
+                                        <tr><td><code>BLMin</code></td><td>最小背光亮度。</td></tr>
+                                        <tr><td><code>BLMax</code></td><td>最大背光亮度。</td></tr>
+                                        <tr><td><code>BLTxRx</code></td><td>收发时背光：<code>OFF</code> / <code>TX</code> / <code>RX</code> / <code>TX/RX</code>。</td></tr>
+                                        <tr><td><code>SetCtr</code></td><td>屏幕对比度。</td></tr>
+                                        <tr><td>反色 <code>SetInv</code></td><td>反色显示。</td></tr>
+                                        <tr><td><code>SetMet</code></td><td>S 表样式：<code>TINY</code> / <code>CLASSIC</code>。</td></tr>
+                                        <tr><td><code>SetGUI</code></td><td>VFO 字体大小：<code>TINY</code> / <code>CLASSIC</code>。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group">
+                            <summary><span>定时</span><span class="guide-count">4 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>TxTOut</code></td><td>发射超时时间。</td></tr>
+                                        <tr><td><code>SetTOT</code></td><td>发射超时提示：<code>OFF</code> / <code>SOUND</code> / <code>VISUAL</code> / <code>ALL</code>。</td></tr>
+                                        <tr><td><code>SetEOT</code></td><td>发射结束提示：<code>OFF</code> / <code>SOUND</code> / <code>VISUAL</code> / <code>ALL</code>。</td></tr>
+                                        <tr><td><code>SetTmr</code></td><td>收发计时显示开关。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group">
+                            <summary><span>音频</span><span class="guide-count">4 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>Beep</code></td><td>按键提示音。</td></tr>
+                                        <tr><td><code>Mic</code></td><td>麦克风增益。</td></tr>
+                                        <tr><td><code>MicBar</code></td><td>麦克风电平条。</td></tr>
+                                        <tr><td><code>SetVol</code></td><td>接收音量。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group" open>
+                            <summary><span>电台</span><span class="guide-count">6 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td><code>SQL</code></td><td>静噪门限；<code>0</code> 为常开，弱信号用。</td></tr>
+                                        <tr><td><code>VOX</code></td><td>声控发射。</td></tr>
+                                        <tr><td><code>RxMode</code></td><td>单守 / 双守：<code>MAIN ONLY</code>、<code>DUAL RX RESPOND</code>、<code>CROSS BAND</code>、<code>MAIN TX DUAL RX</code>。</td></tr>
+                                        <tr><td><code>STE</code></td><td>普通信道尾音消除。</td></tr>
+                                        <tr><td><code>RP STE</code></td><td>中继尾音消除。</td></tr>
+                                        <tr><td><code>Roger</code></td><td>发信结束音：<code>OFF</code> / <code>ROGER</code> / <code>DIDI</code>。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="guide-group">
+                            <summary><span>服务</span><span class="guide-count">6 项</span></summary>
+                            <div class="guide-table-wrap">
+                                <table class="guide-table">
+                                    <thead><tr><th>二级菜单</th><th>含义</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>F锁 <code>F Lock</code></td><td>频率锁；本固件固定为 CN HAM，不可更改。</td></tr>
+                                        <tr><td><code>350 En</code></td><td>扩展频段开关。</td></tr>
+                                        <tr><td><code>BatCal</code></td><td>电池电压校准。</td></tr>
+                                        <tr><td><code>BatTyp</code></td><td>电池类型：<code>1600mAh K5</code> / <code>2200mAh K5</code> / <code>3500mAh K5</code> / <code>1400mAh K1</code> / <code>2500mAh K1</code>。</td></tr>
+                                        <tr><td><code>SetNav</code></td><td>导航键布局：UV-K1 左右键 / UV-K5 上下键。</td></tr>
+                                        <tr><td><code>Reset</code></td><td>恢复出厂：<code>VFO</code> / <code>ALL</code>。</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+                    </section>
+
+                    <section class="guide-section" aria-labelledby="guide-font">
+                        <h2 id="guide-font"><span class="guide-num">3</span>中文字体</h2>
+                        <p>刷入字库后，信道名可以显示中文。本字库与其他汉化 F4HWN 固件不兼容，不要混刷。</p>
+                        <p>刷字体需要 K 头写频线。电台正常开机即可，不要进 DFU；写之前关闭 UV Studio / K5Viewer，写完关机重开。</p>
+                        <pre class="guide-code"><code>pip install pyserial
+python tools/font_write.py --list
+python tools/font_write.py --port COM3 16x16.fon 8x8.fon</code></pre>
+                        <p><code>COM3</code> 换成实际串口。脚本来自固件仓库的 <code>tools/font_write.py</code>。</p>
+                        <p>下载：<a href="archive/fonts/font_write.py" download><code>font_write.py</code></a> · <a href="archive/fonts/16x16.fon" download><code>16x16.fon</code></a> · <a href="archive/fonts/8x8.fon" download><code>8x8.fon</code></a></p>
+                        <p class="guide-warning">不要用旧的 <code>UV-K1_FontTool.exe</code>，它写的是老地址，会导致中文花屏。</p>
+                    </section>
+                </article>
             </div>
 
             <!-- ─────────── Calibration backup ─────────── -->

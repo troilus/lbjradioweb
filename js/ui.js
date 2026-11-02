@@ -9,8 +9,8 @@
 ;(function () {
     "use strict";
 
-    const VERSION = "0.20";
-    const ROUTES = ["calibration", "flash", "slots", "apps", "lbj-log"];
+    const VERSION = "0.21";
+    const ROUTES = ["guide", "calibration", "flash", "slots", "apps", "lbj-log"];
 
     const serial = window.LBJSerial;
     const controller = window.UVStudioSerial;
@@ -49,6 +49,7 @@
     // Info-box text per view; swapped together with the view so every page keeps
     // its own warning without duplicating the markup.
     const INFO_KEYS = {
+        "guide": "guidePageNote",
         "lbj-log": "lbjPageNote",
         "calibration": "infoBoxDump",
         "flash": "flashPageNote",

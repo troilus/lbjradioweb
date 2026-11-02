@@ -590,5 +590,8 @@ window.UVSTUDIO_LOCALES.en = {
   "studio_operation_apps_refresh": "Reading apps…",
   "studio_operation_apps_install": "Installing an app…",
   "studio_operation_apps_delete": "Deleting an app…",
-  "studio_operation_apps_delete_all": "Deleting all apps…"
+  "studio_operation_apps_delete_all": "Deleting all apps…",
+
+  "studio_nav_guide": "使用说明",
+  "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。"
 };

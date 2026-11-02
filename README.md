@@ -4,10 +4,11 @@
 `0x018000..0x01FFFF`（1024 条 × 32 字节）里的 LBJ 车次日志读回来，在页面上列成表格，
 导出 CSV 或原始 32 KiB 镜像。
 
-同一个页面还提供另外四个工具页（外观与 UV Studio 一致）：
+同一个页面还提供以下页面（外观与 UV Studio 一致）：
 
 | 侧栏 | 作用 |
 | --- | --- |
+| **使用说明** | LBJ / TDCS 固件与 APP 的操作、快捷键和菜单速查（默认页） |
 | **校准备份** | 备份 / 恢复设备专属的 EEPROM 校准数据 |
 | **刷固件** | DFU 模式整机刷写固件（会覆盖主固件） |
 | **多固件** | 把多个固件写进外部 flash 的插槽，开机按住 `MENU` 选择 |
@@ -28,7 +29,13 @@
 - 用 K 头写频线连接电台。
 - 车次日志、校准备份、多固件、APP 都在电台正常开机状态下操作；刷固件需要先进入 DFU 模式
   （按住 `PTT` 开机）。
-- 五个页面通过地址栏 hash 切换：`#calibration`、`#flash`、`#slots`、`#apps`、`#lbj-log`。
+- 六个页面通过地址栏 hash 切换：`#guide`、`#calibration`、`#flash`、`#slots`、`#apps`、`#lbj-log`。
+
+### 使用说明
+
+侧栏第一项，打开页面时默认显示。内容按「刷机之前 → 快速上手 → 设置菜单 → 中文字体」
+组织，正文只写中文；页面本身不涉及串口操作。中文字体一节提供刷写命令和
+`archive/fonts/` 下的脚本、字库下载。
 
 ### 校准备份
 
@@ -108,9 +115,11 @@
 ## 文件
 
 ```
-index.html            UV Studio 外壳 + 五个工具视图
+index.html            UV Studio 外壳 + 六个视图
 css/{core,studio,tools}.css   原样内置自 UV Studio（见下"来源"）
 css/lbj-log.css       本页自己的少量样式（宽屏/窄屏表格、等宽数字、列表工具栏）
+css/guide.css         使用说明页的步骤、表格和折叠分组样式
+archive/fonts/        中文字库（16x16.fon / 8x8.fon）和刷写脚本 font_write.py
 js/studio-preferences.js      原样内置
 js/studio-i18n.js             原样内置（data-i18n 机制）
 js/studio-serial.js           原样内置（串口所有权仲裁）
@@ -173,7 +182,7 @@ Contents API 的 `main` 分支读取，因此不需要额外的清单文件：
 - 未认证的 GitHub API 每小时 60 次；触顶后页面会暂停请求，等 `x-ratelimit-reset`
   之后自动恢复，同时继续使用缓存；
 - 下载直连 GitHub Pages 上的静态文件（`archive/...`），不经过 API；
-- 没有网络或 API 不可用时，五个工具页都仍然可以选本地文件。
+- 没有网络或 API 不可用时，各工具页仍可选择本地文件。
 
 ## 自测
 
