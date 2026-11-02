@@ -147,12 +147,31 @@
   white-space: pre;
 }
 
-#pane-tools .guide-warning {
-  padding: 10px 12px;
-  border-left: 3px solid #ef4444;
-  border-radius: 4px;
-  background: color-mix(in oklab, #ef4444 9%, transparent);
-  color: var(--text) !important;
+#pane-tools .guide-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#pane-tools .guide-downloads li {
+  margin: 0;
+}
+
+#pane-tools .guide-downloads a {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  text-decoration: none;
+}
+
+#pane-tools .guide-downloads a:hover {
+  border-color: var(--accent);
 }
 
 #pane-tools .guide-table-wrap {
