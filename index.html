@@ -456,6 +456,7 @@
 
                     <section class="guide-section" aria-labelledby="guide-font">
                         <h2 id="guide-font"><span class="guide-num">3</span>中文字体</h2>
+                        <p>本页有两个中文固件：<code>LBJRADIO-cn</code> 内嵌常用汉字，不刷字库也能显示，生僻字留空；<code>LBJRADIO-font</code> 不内嵌字模，所有汉字都从下面刷入的字库读取，支持完整 GB2312，但<strong>必须先刷字库</strong>，否则中文全部空白。</p>
                         <p>刷入字库后，信道名可以显示中文。本字库与其他汉化 F4HWN 固件不兼容，不要混刷。</p>
                         <p>刷字体需要 K 头写频线。电台正常开机即可，不要进 DFU；写之前关闭 UV Studio / K5Viewer，写完关机重开。</p>
                         <pre class="guide-code"><code>pip install pyserial
