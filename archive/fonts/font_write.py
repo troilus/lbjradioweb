@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""把 16×16 / 8×8 中文字库写到多系统固件的新地址。
+
+用法
+----
+  python font_write.py --list
+  python font_write.py --port COM3 16x16.fon 8x8.fon
+  python font_write.py --dry-run 16x16.fon
+
+图形界面版本见同目录 font_write_gui.py（或 LBRFontWriter.exe）。
+"""
+
 
 import argparse
 import os
@@ -49,6 +60,11 @@ MB_ERR = {
     10: "要写的区域是受保护数据（校准区）",
 }
 
+
+class Cancelled(Exception):
+    """用户在图形界面里点了取消。"""
+
+
 SECTOR = 0x1000            # 4 KiB
 CHUNK = 128                # 单条写命令最多 128 字节（PY25Q16_RAW_CHUNK_SIZE）
 
@@ -87,13 +103,15 @@ def build_frame(cmd_id: int, data: bytes = b"") -> bytes:
 class Device:
     """极简串口会话：发命令、收应答，带帧同步。"""
 
-    def __init__(self, port: str, baud: int, debug: bool = False):
+    def __init__(self, port: str, baud: int, debug: bool = False, debug_log=None):
         import serial  # 延迟导入，--dry-run 时不需要 pyserial
 
         self.ser = serial.Serial(port, baudrate=baud, timeout=0.2, write_timeout=5)
         self.rx = bytearray()
         self.timestamp = 0
         self.debug = debug
+        # 图形界面把原始收发写进日志框，命令行仍然直接 print
+        self._debug_log = debug_log or print
 
     def close(self):
         try:
@@ -103,7 +121,7 @@ class Device:
 
     def _write(self, frame: bytes):
         if self.debug:
-            print("  TX " + frame.hex(" "))
+            self._debug_log("  TX " + frame.hex(" "))
         self.ser.write(frame)
         self.ser.flush()
 
@@ -116,7 +134,7 @@ class Device:
             if chunk:
                 self.rx.extend(chunk)
                 if self.debug:
-                    print("  RX " + chunk.hex(" "))
+                    self._debug_log("  RX " + chunk.hex(" "))
 
     def read_reply(self, expect_id: int, timeout: float = 3.0, settle: float = 0.06):
         """等到 expect_id 的应答。返回应答的数据段（不含 4 字节头）。
@@ -255,20 +273,51 @@ def load_font(path: str):
 
 
 def write_font(dev: Device, name: str, path: str, base: int, blob: bytes,
-               verify: bool = True):
-    print(f"\n== {name} ==")
-    print(f"  文件   : {path}（{human(len(blob))} 字节）")
-    print(f"  目标   : 0x{base:06X} .. 0x{base + len(blob) - 1:06X}")
+               verify: bool = True, log=print, progress=None, cancel=None):
+    """把一个字库写进 flash。
+
+    log(msg)                       输出一行日志（默认 print）
+    progress(stage, done, total)   进度回调，stage 是 erase / write / verify
+    cancel()                       返回 True 时中止，抛 Cancelled
+
+    log 和 progress 都不传时，输出与旧版命令行完全一致。
+    """
+    cli = progress is None
+
+    def say(text):
+        """一行完整日志：命令行直接 print，图形界面交给 log 回调。"""
+        if cli:
+            print(text, flush=True)
+        else:
+            log(text)
+
+    def check_cancel():
+        if cancel is not None and cancel():
+            raise Cancelled("已取消")
+
+    say(f"\n== {name} ==")
+    say(f"  文件   : {path}（{human(len(blob))} 字节）")
+    say(f"  目标   : 0x{base:06X} .. 0x{base + len(blob) - 1:06X}")
 
     if base < TAIL_FREE_START or base + len(blob) > TAIL_FREE_END:
         raise SystemExit("目标地址不在固件预留的尾部空区里，已中止（可能是脚本常量被改坏了）。")
 
     # 1) 擦
+    check_cancel()
     sectors = (len(blob) + SECTOR - 1) // SECTOR
-    print(f"  擦除   : {sectors} 个 4 KiB 扇区 ...", end="", flush=True)
+    if cli:
+        print(f"  擦除   : {sectors} 个 4 KiB 扇区 ...", end="", flush=True)
+    else:
+        log(f"  擦除   : {sectors} 个 4 KiB 扇区 ...")
     for i in range(sectors):
         dev.erase_sector(base + i * SECTOR)
-    print(" 完成")
+        check_cancel()
+        if progress is not None:
+            progress("erase", i + 1, sectors)
+    if cli:
+        print(" 完成")
+    else:
+        log("  擦除完成")
 
     # 2) 写
     written = 0
@@ -276,25 +325,48 @@ def write_font(dev: Device, name: str, path: str, base: int, blob: bytes,
     for off in range(0, len(blob), CHUNK):
         dev.write_chunk(base + off, blob[off:off + CHUNK])
         written += len(blob[off:off + CHUNK])
-        pct = written * 100 // len(blob)
-        print(f"\r  写入   : {pct:3d}%  ({human(written)}/{human(len(blob))} 字节)", end="", flush=True)
+        check_cancel()
+        if progress is not None:
+            progress("write", written, len(blob))
+        else:
+            pct = written * 100 // len(blob)
+            print(f"\r  写入   : {pct:3d}%  ({human(written)}/{human(len(blob))} 字节)",
+                  end="", flush=True)
     dt = max(time.time() - t0, 0.001)
-    print(f" 完成（{dt:.1f} s，{human(int(len(blob) / dt))} 字节/秒）")
+    tail = f"（{dt:.1f} s，{human(int(len(blob) / dt))} 字节/秒）"
+    if cli:
+        print(f" 完成{tail}")
+    else:
+        log(f"  写入完成{tail}")
 
     # 3) CRC + 回读
     if verify:
-        print("  校验   : ", end="", flush=True)
+        if cli:
+            print("  校验   : ", end="", flush=True)
+        else:
+            log("  校验   : 逐扇区比对 CRC32 ...")
         bad = 0
-        for off in range(0, len(blob), SECTOR):
-            part = blob[off:off + SECTOR]
+        parts = [blob[off:off + SECTOR] for off in range(0, len(blob), SECTOR)]
+        for i, part in enumerate(parts):
+            off = i * SECTOR
             onflash = dev.crc32(base + off, len(part))
             mine = zlib.crc32(part) & 0xFFFFFFFF
             if onflash != mine:
                 bad += 1
-                print(f"\n    0x{base + off:06X} CRC 不符（机内 0x{onflash:08X} / 应为 0x{mine:08X}）")
+                msg = f"0x{base + off:06X} CRC 不符（机内 0x{onflash:08X} / 应为 0x{mine:08X}）"
+                if cli:
+                    print("\n    " + msg)
+                else:
+                    log("    " + msg)
+            check_cancel()
+            if progress is not None:
+                progress("verify", i + 1, len(parts))
         if bad:
             raise SystemExit("校验失败：请确认固件已刷成带多系统的版本，然后重跑本脚本。")
-        print("CRC 全部一致", end="")
+        if cli:
+            print("CRC 全部一致", end="")
+        else:
+            log("  CRC 全部一致")
 
         # 再抽读几段字节，防 CRC 命令本身出问题
         probes = [0, len(blob) // 2, max(0, len(blob) - CHUNK)]
@@ -302,8 +374,14 @@ def write_font(dev: Device, name: str, path: str, base: int, blob: bytes,
             blk = dev.read_chunk(base + off, min(CHUNK, len(blob) - off))
             if blk != blob[off:off + len(blk)]:
                 raise SystemExit(f"回读不符：0x{base + off:06X}。")
-        print("，回读一致")
-    print("  OK")
+        if cli:
+            print("，回读一致")
+        else:
+            log("  回读一致")
+    if cli:
+        print("  OK")
+    else:
+        log("  OK")
 
 
 # ---------------------------------------------------------------------------
@@ -325,7 +403,7 @@ def main():
     ap = argparse.ArgumentParser(
         description="把 16×16 / 8×8 中文字库写到多系统固件的新地址",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__.split("用法\n----")[-1],
+        epilog=(__doc__ or "").split("用法\n----")[-1],
     )
     ap.add_argument("files", nargs="*", help="16x16.fon 和/或 8x8.fon")
     ap.add_argument("--port", help="串口，例如 COM3 或 /dev/ttyUSB0")

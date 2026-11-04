@@ -469,11 +469,13 @@
                         <p>本页有两个中文固件：<code>LBJRADIO-cn</code> 内嵌常用汉字，不刷字库也能显示，生僻字留空；<code>LBJRADIO-font</code> 不内嵌字模，所有汉字都从下面刷入的字库读取，支持完整 GB2312，但<strong>必须先刷字库</strong>，否则中文全部空白。</p>
                         <p>刷入字库后，信道名可以显示中文。本字库与其他汉化 F4HWN 固件不兼容，不要混刷。</p>
                         <p>刷字体需要 K 头写频线。电台正常开机即可，不要进 DFU；写之前关闭 UV Studio / K5Viewer，写完关机重开。</p>
+                        <p><strong>图形界面版（推荐）</strong>：下载 <code>LBRFontWriter.exe</code> 双击运行，选串口、选字库文件，点「开始刷写」即可，不用装 Python。适用于 Windows 10 / 11。个别杀毒软件会对 PyInstaller 打包的 exe 误报，若被拦截可改用下面的命令行方式，效果完全一样。</p>
                         <pre class="guide-code"><code>pip install pyserial
 python tools/font_write.py --list
 python tools/font_write.py --port COM3 16x16.fon 8x8.fon</code></pre>
-                        <p><code>COM3</code> 换成实际串口。脚本来自固件仓库的 <code>tools/font_write.py</code>。</p>
+                        <p><code>COM3</code> 换成实际串口。脚本来自固件仓库的 <code>tools/font_write.py</code>，图形界面版的源码是同目录的 <code>font_write_gui.py</code>。</p>
                         <ul class="guide-downloads">
+                            <li><a href="archive/fonts/LBRFontWriter.exe" download><code>LBRFontWriter.exe</code></a>（图形界面，免安装）</li>
                             <li><a href="archive/fonts/font_write.py" download><code>font_write.py</code></a></li>
                             <li><a href="archive/fonts/16x16.fon" download><code>16x16.fon</code></a></li>
                             <li><a href="archive/fonts/8x8.fon" download><code>8x8.fon</code></a></li>

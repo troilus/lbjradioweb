@@ -1,2 +1,9 @@
-# Auto detect text files and perform LF normalization
+# Auto detect text files and do LF normalization
 * text=auto
+
+# 二进制文件，禁止任何换行/编码转换
+*.exe binary
+*.bin binary
+*.app binary
+*.fon binary
+*.ico binary

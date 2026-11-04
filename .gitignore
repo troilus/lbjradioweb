@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+*.pyc
+
+# PyInstaller 中间产物（exe 本体在 archive/fonts/ 下，要提交）
+build/
+*.spec

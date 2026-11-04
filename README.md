@@ -133,7 +133,8 @@ index.html            UV Studio 外壳 + 六个视图
 css/{core,studio,tools}.css   原样内置自 UV Studio（见下"来源"）
 css/lbj-log.css       本页自己的少量样式（宽屏/窄屏表格、等宽数字、列表工具栏）
 css/guide.css         使用说明页的步骤、表格和折叠分组样式
-archive/fonts/        中文字库（16x16.fon / 8x8.fon）和刷写脚本 font_write.py
+archive/fonts/        中文字库（16x16.fon / 8x8.fon）、刷写脚本 font_write.py、
+                      图形界面 font_write_gui.py + 打包好的 LBRFontWriter.exe
 js/studio-preferences.js      原样内置
 js/studio-i18n.js             原样内置（data-i18n 机制）
 js/studio-serial.js           原样内置（串口所有权仲裁）
