@@ -296,7 +296,7 @@ window.UVSTUDIO_LOCALES.zh = {
   "appsDescription": "仅安装所需工具。应用可从电台的 F + 7 菜单启动。",
   "app_catalog_label": "官方叠加应用",
   "app_catalog_version_label": "固件版本",
-  "app_catalog_version_placeholder": "— 选择固件版本 —",
+  "app_catalog_version_placeholder": "— 选择应用版本 —",
   "app_catalog_app_label": "应用",
   "app_catalog_app_placeholder": "— 选择应用 —",
   "appLocalBuild": "自定义",
