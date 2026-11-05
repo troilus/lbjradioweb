@@ -38,6 +38,10 @@
     max-width: 340px;
 }
 
+#pane-tools .channel-toolbar .app-catalog-search input {
+    height: 38px;
+}
+
 #pane-tools .channel-show-empty {
     display: inline-flex;
     align-items: center;
