@@ -230,7 +230,7 @@
                             <li><strong>快捷键。</strong>菜单 → 按键 → <code>F1Shrt</code> / <code>F1Long</code> / <code>F2Shrt</code> / <code>F2Long</code> / <code>M Long</code> 可以设为 <code>LBJMSG</code>、<code>TDCMSG</code>、<code>KLWMSG</code> 或 <code>MSGBOX</code>。<code>MSGBOX</code> 一个键在 LBJ → TDCS → KLW 三个窗口之间循环，没有记录的窗口自动跳过。</li>
                             <li><strong>提醒。</strong><code>LBJALT</code> / <code>TDCALT</code> / <code>KLWALT</code> 选 <code>LED</code> 闪灯、<code>SOUND</code> 三组「嘀嘀嘀」、<code>S+LED</code> 两者都要；<code>MUTE</code> 打开后该信道接收不出声，解码和提醒照常，按住 MONI 或 SQL 0 仍然出声。</li>
                             <li><strong>二维码。</strong>LBJ 实时报文右上角 <code>km</code> 后面有 <code>*</code> 时，按 <kbd>*</kbd> 显示二维码，扫码查看列车位置。只有实时页保留坐标，存盘记录没有。</li>
-                            <li><strong>时间广播。</strong>收到 <code>1234008</code> 时间报文时，窗口地址行右侧显示 <code>HH:MM</code>。它不进历史、不弹窗；地址行太长（强度差于 -100 dBm）时会省掉 <code>dB</code> 单位给时间让位。</li>
+                            <li><strong>时间广播。</strong>收到 <code>1234008</code> 时间报文时，窗口地址行右侧显示 <code>HH:MM</code>，但只挂在紧随其后的那一条报文上；之后的 <code>1234002</code> 不会重复显示这个时间。翻回那条记录仍显示它自己的时间。它不进历史、不弹窗；地址行太长（强度差于 -100 dBm）时会省掉 <code>dB</code> 单位给时间让位。</li>
                             <li><strong>弱信号。</strong>把 <code>SQL</code> 设为 <code>0</code>，或打开监听，让载波能打开静噪。</li>
                             <li><strong>双守 / 多守。</strong>把 A/B 两个信道分别设为联控（普通 FM）、LBJ、TDC 中的两个，<code>RxMode</code> 选 <code>MAIN TX DUAL RX</code>。要同时守 3/4 个信道，选 <code>FULL WATCH</code>，并在 <b>电台 → MON3 / MON4</b> 里各选一个存储信道；S 表行最左边会显示 <code>3</code>/<code>4</code> 徽标，正在接收的那个闪烁。</li>
                             <li><strong>存信道。</strong>最好把设置好的频率和模式存储为信道，方便快速切换。</li>
