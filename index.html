@@ -222,6 +222,7 @@
                             <li>频率模式输入 TDCS 频率。</li>
                             <li>菜单 → 信道 → 模式（<code>Mode</code>）→ <code>TDC</code>。</li>
                             <li>等待解码窗口弹出。<kbd>UP</kbd>/<kbd>DOWN</kbd> 翻历史，<kbd>6</kbd>/<kbd>9</kbd> 翻页，<kbd>EXIT</kbd> 关闭。TDCS 和 KLW 各自保留 8 条历史，翻页不会串到另一种报文；KLW 第 2 页显示收到的原始信息字节，命令码不在表里时显示 <code>?</code>。</li>
+                            <li><strong>表7 回执（font 版）。</strong>TDCS 信道上还会收到表7 回执：自动确认、手动签收、调车请求。窗口第一行是车次和到签收地点的距离，<kbd>3</kbd> 切换位置槽 A/B/C/D，<kbd>*</kbd> 显示签收地点的二维码；菜单 → TDC → <code>ACKMSG</code> 可手动打开。cn 版没有这个窗口。</li>
                         </ol>
 
                         <h4>2.1.3 小技巧</h4>
@@ -272,6 +273,7 @@
                                     <tr><td><code>TDCPOP</code></td><td>窗口自动关闭：<code>ON</code> / <code>3s</code> / <code>5s</code> / <code>10s</code> / <code>60s</code>。</td></tr>
                                     <tr><td><code>TDCALT</code></td><td>解码成功怎么提醒：<code>OFF</code> / <code>LED</code> / <code>SOUND</code> / <code>S+LED</code>，默认 <code>LED</code>。</td></tr>
                                     <tr><td><code>TDCMUT</code></td><td><code>OFF</code> / <code>ON</code>：<code>ON</code> 时该信道接收不出声，解码和提醒照常；按住 MONI 或 SQL 0 仍然出声。</td></tr>
+                                    <tr><td><code>ACKMSG</code></td><td>打开表7 回执窗口（font 版）。</td></tr>
                                 </tbody>
                             </table>
                         </div>
