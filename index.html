@@ -10,6 +10,7 @@
 <link href="css/tools.css" rel="stylesheet">
 <link href="css/lbj-log.css" rel="stylesheet">
 <link href="css/guide.css" rel="stylesheet">
+<link href="css/channel-editor.css" rel="stylesheet">
 </head>
 <body data-theme="light">
 
@@ -120,6 +121,12 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.4"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.4"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.4"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.4"/></svg>
                 <span class="nav-item-label" data-i18n="studio_nav_apps">Apps</span>
             </button>
+            <button class="nav-item" data-route="channels"
+                    data-tool-view="channels" data-name="Channel editor"
+                    data-section-i18n="studio_nav_channels">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
+                <span class="nav-item-label" data-i18n="studio_nav_channels">Channel editor</span>
+            </button>
             <button class="nav-item" data-route="lbj-log"
                     data-tool-view="lbj-log" data-name="LBJ Log"
                     data-section-i18n="studio_nav_lbj_log">
@@ -140,6 +147,143 @@
     <main class="stage">
         <section class="pane active" id="pane-tools">
           <div class="container">
+
+            <!-- ─────────── Channel editor ─────────── -->
+            <div class="tool-view" id="channels-content" role="region" hidden>
+                <section class="section">
+                    <p class="tab-description" data-i18n="channelsDescription">Read, edit and write the radio's MR channels. Chinese names require the Chinese font.</p>
+                    <p class="channel-font-note">
+                        <span data-i18n="channelFontNote">Chinese channel names need the Chinese font: the cn build has it embedded; the font build needs the font file flashed first, otherwise Chinese names show as blanks.</span>
+                        <a href="#guide" data-i18n="channelFontGuide">User guide → Chinese font</a>
+                    </p>
+                    <div class="channel-toolbar">
+                        <button id="channelReadBtn" class="btn primary" data-i18n="channelRead">Read channels</button>
+                        <button id="channelWriteBtn" class="btn" data-i18n="channelWriteSelected" disabled>Save changed</button>
+                        <button id="channelWriteAllBtn" class="btn" data-i18n="channelWriteAll" disabled>Write all</button>
+                        <button id="channelRebootBtn" class="btn" data-i18n="channelReboot" hidden>Reboot radio</button>
+                        <label class="app-catalog-search" for="channelFilter">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                            <input id="channelFilter" type="search" autocomplete="off" spellcheck="false"
+                                   data-i18n-placeholder="channelFilterPlaceholder" placeholder="Filter by frequency, name or channel…"/>
+                        </label>
+                        <label class="channel-show-empty">
+                            <input id="channelShowEmpty" type="checkbox"/>
+                            <span data-i18n="channelShowEmpty">Show empty channels</span>
+                        </label>
+                        <span id="channelModified" class="channel-modified-badge" hidden></span>
+                    </div>
+                </section>
+
+                <section class="section" id="channelResults" hidden>
+                    <div class="slots-table-wrap channel-table-wrap">
+                        <table class="slots-table channel-table" id="channelTable">
+                            <thead>
+                                <tr>
+                                    <th data-sort="num" data-i18n="channelColNum">#</th>
+                                    <th data-sort="rx" data-i18n="channelColRx">RX</th>
+                                    <th data-sort="name" data-i18n="channelColName">Name</th>
+                                    <th data-sort="mode" data-i18n="channelColMode">Mode</th>
+                                    <th data-i18n="channelColPower">Power</th>
+                                    <th data-i18n="channelColBw">BW</th>
+                                    <th data-i18n="channelColStep">Step</th>
+                                    <th data-i18n="channelColOffset">Offset</th>
+                                    <th data-i18n="channelColTone">Tone</th>
+                                    <th data-i18n="channelColScan">Scan</th>
+                                    <th data-i18n="channelColActions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="channelRows"></tbody>
+                        </table>
+                    </div>
+                    <p class="tab-description" id="channelEmpty" hidden data-i18n="channelEmpty">No channels to show.</p>
+                </section>
+
+                <div class="modal channel-modal" id="channelEditModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="channelEditTitle">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span class="modal-title" id="channelEditTitle">Edit channel</span>
+                            <button class="modal-close" id="channelEditClose" type="button" data-i18n-aria-label="appClose" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="channel-form">
+                                <label class="channel-field channel-field-wide">
+                                    <span data-i18n="channelFieldName">Name</span>
+                                    <input id="channelEditName" type="text" maxlength="10" autocomplete="off" spellcheck="false"/>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldRx">RX frequency (MHz)</span>
+                                    <input id="channelEditRx" type="text" inputmode="decimal" autocomplete="off"/>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldOffset">TX offset (MHz)</span>
+                                    <input id="channelEditOffset" type="text" inputmode="decimal" autocomplete="off"/>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldDirection">TX direction</span>
+                                    <select id="channelEditDirection"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldMod">Mode</span>
+                                    <select id="channelEditMod"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldRxToneType">RX tone type</span>
+                                    <select id="channelEditRxToneType"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldRxTone">RX tone</span>
+                                    <select id="channelEditRxTone"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldTxToneType">TX tone type</span>
+                                    <select id="channelEditTxToneType"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldTxTone">TX tone</span>
+                                    <select id="channelEditTxTone"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldBw">Bandwidth</span>
+                                    <select id="channelEditBw"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldPower">Power</span>
+                                    <select id="channelEditPower"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldStep">Step</span>
+                                    <select id="channelEditStep"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldScan">Scan list</span>
+                                    <select id="channelEditScan"></select>
+                                </label>
+                                <label class="channel-field">
+                                    <span data-i18n="channelFieldCompander">Compander</span>
+                                    <select id="channelEditCompander"></select>
+                                </label>
+                                <label class="channel-check">
+                                    <input id="channelEditBcl" type="checkbox"/>
+                                    <span data-i18n="channelFieldBcl">Busy channel lock</span>
+                                </label>
+                                <label class="channel-check">
+                                    <input id="channelEditTxLock" type="checkbox"/>
+                                    <span data-i18n="channelFieldTxLock">TX lock</span>
+                                </label>
+                                <label class="channel-check">
+                                    <input id="channelEditReverse" type="checkbox"/>
+                                    <span data-i18n="channelFieldReverse">Frequency reverse</span>
+                                </label>
+                                <p class="channel-form-error" id="channelEditError" hidden></p>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn" id="channelEditCancel" type="button" data-i18n="channelCancel">Cancel</button>
+                            <button class="btn primary" id="channelEditSave" type="button" data-i18n="channelSave">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- ─────────── LBJ Log ─────────── -->
             <div class="tool-view" id="lbj-log-content" role="region" hidden>
@@ -202,6 +346,7 @@
                             <li><strong>先备份校准。</strong>打开 <a href="#calibration">校准备份</a> 读取并保存 <code>calibration.dat</code>。校准数据是本机专属，换机恢复可能影响发射指标。</li>
                             <li><strong>多固件（可选）。</strong>支持多固件的 F4HWN 固件可以把 LBJ 固件写入固件插槽。开机前按住 <kbd>M</kbd> 进入选择器；选中的固件将作为主固件启动。写槽本身只动外部 flash，不影响当前主固件。</li>
                             <li><strong>固件版和 APP 版二选一。</strong>固件版把解码、日志、双守和快捷键都做进固件，功能更全；APP 版（<code>LBJRX</code> / <code>TDCSRX</code>）可装在 LBJ 固件或支持 APP 的 F4HWN 固件上，从 <kbd>F</kbd> + <kbd>7</kbd> 启动，进入后自动设置频率。</li>
+                            <li><strong>首次刷完做一次 Reset ALL。</strong>刷完后进入 菜单 → Reset → ALL 做一次完整复位，新的默认设置（STE、显示、按键等）才会写入；复位会清空所有信道，请先备份。</li>
                         </ol>
                     </section>
 
@@ -762,6 +907,7 @@ python tools/font_write.py --port COM3 16x16.fon 8x8.fon</code></pre>
 <script src="js/studio-serial.js"></script>
 <script src="js/lbj-log.js"></script>
 <script src="js/radio-format.js"></script>
+<script src="js/channel-format.js"></script>
 <script src="js/catalog.js"></script>
 <script src="js/serial.js"></script>
 <script src="js/ui.js"></script>
@@ -770,5 +916,6 @@ python tools/font_write.py --port COM3 16x16.fon 8x8.fon</code></pre>
 <script src="js/view-slots.js"></script>
 <script src="js/view-apps.js"></script>
 <script src="js/view-calibration.js"></script>
+<script src="js/view-channels.js"></script>
 </body>
 </html>

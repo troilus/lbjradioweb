@@ -129,10 +129,11 @@ GB2312、体积更小，但没刷字库时中文全部空白。字库刷写见�
 ## 文件
 
 ```
-index.html            UV Studio 外壳 + 六个视图
+index.html            UV Studio 外壳 + 七个视图
 css/{core,studio,tools}.css   原样内置自 UV Studio（见下"来源"）
 css/lbj-log.css       本页自己的少量样式（宽屏/窄屏表格、等宽数字、列表工具栏）
 css/guide.css         使用说明页的步骤、表格和折叠分组样式
+css/channel-editor.css 信道编辑页的表格、筛选栏和编辑弹窗样式
 archive/fonts/        中文字库（16x16.fon / 8x8.fon）、刷写脚本 font_write.py、
                       图形界面 font_write_gui.py + 打包好的 LBRFontWriter.exe
 js/studio-preferences.js      原样内置
@@ -142,12 +143,14 @@ js/ui.js              外壳接线：Console / 进度条 / 状态胶囊 / 主题
 js/serial.js          串口协议：连接 + 0x0514 + 0x0738/0x0739 + 校准 EEPROM / 插槽 / APP / DFU 命令
 js/lbj-log.js         纯模块：32 字节记录解析 + CRC8 + CSV（可选 Node CLI）
 js/radio-format.js    纯模块：CRC32、FMB1 插槽头、FAP1 应用头、版本比较
+js/channel-format.js  纯模块：MR 信道记录、属性字、频率/band、GB2312 名称编解码
 js/catalog.js         纯模块：归档站目录（GitHub Contents API）+ 缓存 + 分组 + 下载
 js/app.js             LBJ 车次日志视图
 js/view-flash.js      刷固件视图
 js/view-slots.js      多固件视图
 js/view-apps.js       管理安装 APP 视图
 js/view-calibration.js 校准备份 / 恢复视图
+js/view-channels.js   信道编辑视图（MR 信道）
 js/*.test.js          Node 自测（node --test）
 locales/{zh,en}.js    内置自 UV Studio，并在结尾追加本页新增的键
 ```
@@ -203,8 +206,10 @@ Contents API 的 `main` 分支读取，因此不需要额外的清单文件：
 ## 自测
 
 ```sh
-node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js
+node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js js/channel-format.test.js
 node --check js/serial.js
+node --check js/channel-format.js
+node --check js/view-channels.js
 ```
 
 覆盖：CRC8 固件向量、几何常量、全字段解析、方向三态、缺字段哨兵、未知车型码、

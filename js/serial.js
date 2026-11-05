@@ -73,6 +73,12 @@
     const CALIB_OFFSET_V5 = 0xB000;
     const EEPROM_TIMEOUT_MS = 3000;
 
+    // Channel-editor access to the same 0x051B/0x051D pair. Reads can take the
+    // full 64-byte reply; writes stay on the 16-byte calibration chunk so the
+    // firmware's 8-byte programming loop is never asked for a partial block.
+    const EEPROM_READ_CHUNK = 64;
+    const EEPROM_WRITE_CHUNK = 16;
+
     const controller = window.UVStudioSerial;
     /* UV Studio's ownership controller hands the page a client handle; every
        acquire / release / operation call goes through it (see js/flash.js). */
@@ -518,6 +524,57 @@
         }
     }
 
+    // ---- Generic EEPROM ranges (channel editor) -----------------------------
+
+    async function readEepromRange(offset, length, timestamp, onProgress) {
+        const image = new Uint8Array(length);
+        for (let position = 0; position < length; position += EEPROM_READ_CHUNK) {
+            const chunkLength = Math.min(EEPROM_READ_CHUNK, length - position);
+            let chunk = null;
+            for (let attempt = 0; attempt < 4; attempt++) {
+                try {
+                    chunk = await readCalibrationChunk(
+                        offset + position, chunkLength, timestamp);
+                    break;
+                } catch (error) {
+                    if (error?.code === "UVSTUDIO_SERIAL_SESSION_CHANGED" || attempt === 3) {
+                        throw error;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 40));
+                }
+            }
+            image.set(chunk, position);
+            if (onProgress) onProgress((position + chunkLength) / length);
+        }
+        return image;
+    }
+
+    async function writeEepromChunk(offset, timestamp, chunk) {
+        const data = new Uint8Array(8 + chunk.length);
+        const view = new DataView(data.buffer);
+        view.setUint16(0, offset, true);
+        view.setUint16(2, chunk.length, true);
+        data[3] = 1;
+        view.setUint32(4, timestamp, true);
+        data.set(chunk, 8);
+
+        const response = await exchange(
+            MSG_WRITE_EEPROM, data, MSG_WRITE_EEPROM_RESP, EEPROM_TIMEOUT_MS);
+        if (!response || response.length < 2) throw calibrationError(offset);
+        const viewResponse = new DataView(
+            response.buffer, response.byteOffset, response.byteLength);
+        if (viewResponse.getUint16(0, true) !== offset) throw calibrationError(offset);
+    }
+
+    async function writeEepromRange(offset, timestamp, bytes, onProgress) {
+        for (let position = 0; position < bytes.length; position += EEPROM_WRITE_CHUNK) {
+            const chunk = bytes.subarray(
+                position, Math.min(position + EEPROM_WRITE_CHUNK, bytes.length));
+            await writeEepromChunk(offset + position, timestamp, chunk);
+            if (onProgress) onProgress((position + chunk.length) / bytes.length);
+        }
+    }
+
     // ---- Generic request/response -------------------------------------------
 
     /* Send one command and wait for its reply type. `data` is the payload after
@@ -812,6 +869,10 @@
         CALIB_CHUNK,
         CALIB_OFFSET_LEGACY,
         CALIB_OFFSET_V5,
+        EEPROM_READ_CHUNK,
+        EEPROM_WRITE_CHUNK,
+        readEepromRange,
+        writeEepromRange,
         MSG_NOTIFY_DEV_INFO,
         MSG_NOTIFY_BL_VER,
         MSG_PROG_FW,

@@ -10,7 +10,7 @@
     "use strict";
 
     const VERSION = "0.21";
-    const ROUTES = ["guide", "calibration", "flash", "slots", "apps", "lbj-log"];
+    const ROUTES = ["guide", "calibration", "flash", "slots", "apps", "channels", "lbj-log"];
 
     const serial = window.LBJSerial;
     const controller = window.UVStudioSerial;
@@ -54,7 +54,8 @@
         "calibration": "infoBoxDump",
         "flash": "flashPageNote",
         "slots": "slotsPageNote",
-        "apps": "appsPageNote"
+        "apps": "appsPageNote",
+        "channels": "channelPageNote"
     };
 
     let currentOperation = null;
