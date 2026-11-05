@@ -587,5 +587,9 @@
         if (loaded) render();
     });
 
+    ui.onViewChange(detail => {
+        if (detail.view !== "channels") closeEdit();
+    });
+
     updateButtons();
 })();
