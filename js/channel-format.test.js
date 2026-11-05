@@ -24,7 +24,10 @@ test('frequency parsing and formatting use 10 Hz units', () => {
   assert.equal(F.parseFrequency('145.50000'), 14550000);
   assert.equal(F.parseFrequency('821,23750'), 82123750);
   assert.equal(F.parseFrequency('0'), null);
+  assert.equal(F.parseFrequency('1.0'), null);
   assert.equal(F.parseFrequency('abc'), null);
+  assert.equal(F.parseFrequency('1300.00000'), 130000000);
+  assert.equal(F.parseFrequency('1300.00001'), null);
   assert.equal(F.formatFrequency(82123750), '821.23750');
   assert.equal(F.formatFrequency(0), '-');
   assert.equal(F.formatFrequency(0xFFFFFFFF), '-');

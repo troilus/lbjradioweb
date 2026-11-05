@@ -97,7 +97,7 @@
 
   function parseFrequency(text) {
     const value = Math.round(parseFloat(String(text).replace(',', '.')) * 100000);
-    if (!Number.isFinite(value) || value <= 0 || value > 0xFFFFFFFF) return null;
+    if (!Number.isFinite(value) || value < 1800000 || value > 130000000) return null;
     return value;
   }
 
