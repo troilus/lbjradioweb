@@ -86,8 +86,13 @@
     return 0;
   }
 
+  // A channel is only usable when the firmware would accept it:
+  // RADIO_CheckValidChannel() rejects an empty slot by its attribute word
+  // (band 7).  Checking the frequency alone used to expose the pre-v5
+  // calibration block at 0x1E00..0x1F8F (channels 481..505) as channels.
   function isValid(channel) {
-    return channel.rxFreq !== 0 && channel.rxFreq !== 0xFFFFFFFF;
+    return channel.rxFreq !== 0 && channel.rxFreq !== 0xFFFFFFFF
+      && channel.band <= 6;
   }
 
   function formatFrequency(freq) {

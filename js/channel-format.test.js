@@ -116,6 +116,33 @@ test('parseChannel combines record, name and attributes', () => {
   assert.equal(F.isValid(channel), true);
 });
 
+test('isValid follows the firmware empty-slot marker', () => {
+  const record = F.buildRecord({
+    rxFreq: 14550000,
+    txOffset: 0,
+    rxCode: 0,
+    txCode: 0,
+    rxCodeType: 0,
+    txCodeType: 0,
+    modulation: 0,
+    direction: 0,
+    freqReverse: false,
+    bandwidth: 0,
+    outputPower: 1,
+    bcl: false,
+    txLock: false,
+    dtmfDecode: false,
+    pttIdMode: 0,
+    stepSetting: 4,
+    scrambling: 0
+  });
+  const name = new Uint8Array(16);
+  assert.equal(F.isValid(F.parseChannel(0, record, name, Uint8Array.of(2, 0))), true);
+  // 0x0007 (band 7) and 0xFFFF are what the firmware leaves on an empty slot.
+  assert.equal(F.isValid(F.parseChannel(0, record, name, Uint8Array.of(0x07, 0x00))), false);
+  assert.equal(F.isValid(F.parseChannel(0, record, name, Uint8Array.of(0xFF, 0xFF))), false);
+});
+
 test('GBK names encode to GB2312 and stay inside 10 bytes', { skip: !hasGbkDecoder() }, () => {
   const name = F.encodeName('北京');
   assert.equal(name.length, 16);

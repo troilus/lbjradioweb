@@ -52,6 +52,7 @@
     const editTxLock = document.getElementById("channelEditTxLock");
     const editReverse = document.getElementById("channelEditReverse");
     const editSave = document.getElementById("channelEditSave");
+    const editDelete = document.getElementById("channelEditDelete");
     const editCancel = document.getElementById("channelEditCancel");
     const editClose = document.getElementById("channelEditClose");
 
@@ -139,7 +140,7 @@
         const modified = modifiedCount();
         if (readBtn) readBtn.disabled = busy;
         if (writeBtn) writeBtn.disabled = busy || !loaded || modified === 0;
-        if (writeAllBtn) writeAllBtn.disabled = busy || !loaded || validCount() === 0;
+        if (writeAllBtn) writeAllBtn.disabled = busy || !loaded || (validCount() === 0 && modified === 0);
         if (rebootBtn) rebootBtn.disabled = busy;
         if (modifiedEl) {
             modifiedEl.hidden = modified === 0;
@@ -162,18 +163,19 @@
         const offset = channel.direction === 0
             ? "-"
             : (channel.direction === 1 ? "+" : "-") + F.formatFrequency(channel.txOffset);
+        const edit = `<button class="btn channel-edit-btn" type="button" data-index="${channel.num}">${t("channelEdit")}</button>`;
         return `<tr data-index="${channel.num}"${channel._modified ? ' class="channel-row-modified"' : ""}>`
             + `<td class="slot-col-idx">${channel.num + 1}</td>`
+            + `<td class="channel-actions">${edit}</td>`
             + `<td class="channel-freq">${valid ? F.formatFrequency(channel.rxFreq) : "-"}</td>`
-            + `<td class="channel-name">${ui.escapeHtml(channel.name) || "-"}</td>`
-            + `<td>${F.MODULATION_LABELS[channel.modulation] || "?"}</td>`
-            + `<td>${F.POWER_NAMES[channel.outputPower] || "?"}</td>`
-            + `<td>${channel.bandwidth ? t("channelBandwidthNarrowShort") : t("channelBandwidthWideShort")}</td>`
-            + `<td>${F.STEP_NAMES[channel.stepSetting] || "-"}</td>`
-            + `<td>${offset}</td>`
-            + `<td>${F.toneLabel(channel.rxCodeType, channel.rxCode)}</td>`
-            + `<td>${scanLabel(channel.scanlist)}</td>`
-            + `<td><button class="btn channel-edit-btn" type="button" data-index="${channel.num}">${t("channelEdit")}</button></td>`
+            + `<td class="channel-name">${valid ? (ui.escapeHtml(channel.name) || "-") : "-"}</td>`
+            + `<td>${valid ? (F.MODULATION_LABELS[channel.modulation] || "?") : "-"}</td>`
+            + `<td>${valid ? (F.POWER_NAMES[channel.outputPower] || "?") : "-"}</td>`
+            + `<td>${valid ? (channel.bandwidth ? t("channelBandwidthNarrowShort") : t("channelBandwidthWideShort")) : "-"}</td>`
+            + `<td>${valid ? (F.STEP_NAMES[channel.stepSetting] || "-") : "-"}</td>`
+            + `<td>${valid ? offset : "-"}</td>`
+            + `<td>${valid ? F.toneLabel(channel.rxCodeType, channel.rxCode) : "-"}</td>`
+            + `<td>${valid ? scanLabel(channel.scanlist) : "-"}</td>`
             + "</tr>";
     }
 
@@ -442,6 +444,56 @@
         render();
     }
 
+    function emptyChannelState(num) {
+        return {
+            num,
+            rxFreq: 0,
+            txOffset: 0,
+            rxCode: 0,
+            txCode: 0,
+            rxCodeType: 0,
+            txCodeType: 0,
+            modulation: 0,
+            direction: 0,
+            freqReverse: false,
+            bandwidth: 0,
+            outputPower: 1,
+            bcl: false,
+            txLock: false,
+            dtmfDecode: false,
+            pttIdMode: 0,
+            stepSetting: 4,
+            scrambling: 0,
+            name: "",
+            band: 7,
+            compander: 0,
+            exclude: 0,
+            scanlist: 0,
+            _nameBytes: new Uint8Array(F.NAME_BLOCK),
+            _modified: true
+        };
+    }
+
+    async function deleteEdit() {
+        if (editingIndex < 0) return;
+        const channel = channels[editingIndex];
+        const proceed = await ui.confirm({
+            title: t("channelDelete"),
+            body: t("channelDeleteConfirm", channel.num + 1),
+            confirmLabel: t("channelDelete"),
+            danger: true
+        });
+        if (!proceed) return;
+
+        Object.assign(channel, emptyChannelState(channel.num));
+        // 0x0007 = band 7, the value SETTINGS_InitEEPROM() gives an empty slot.
+        attributes[channel.num * F.ATTR_SIZE] = 0x07;
+        attributes[channel.num * F.ATTR_SIZE + 1] = 0x00;
+        closeEdit();
+        render();
+        ui.log(t("channelDeleted", channel.num + 1), "info");
+    }
+
     // ---- Write --------------------------------------------------------------
 
     function channelNameBytes(channel) {
@@ -532,7 +584,7 @@
     }
 
     async function writeAll() {
-        const list = channels.filter(F.isValid);
+        const list = channels.filter(channel => F.isValid(channel) || channel._modified);
         if (list.length === 0) return;
         if (!(await ui.confirm({
             title: t("channelWriteAll"),
@@ -564,6 +616,7 @@
     if (writeAllBtn) writeAllBtn.addEventListener("click", () => { void writeAll(); });
     if (rebootBtn) rebootBtn.addEventListener("click", () => { void reboot(); });
     if (editSave) editSave.addEventListener("click", saveEdit);
+    if (editDelete) editDelete.addEventListener("click", () => { void deleteEdit(); });
     if (editCancel) editCancel.addEventListener("click", closeEdit);
     if (editClose) editClose.addEventListener("click", closeEdit);
     if (modal) {

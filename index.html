@@ -180,6 +180,7 @@
                             <thead>
                                 <tr>
                                     <th data-sort="num" data-i18n="channelColNum">#</th>
+                                    <th data-i18n="channelColActions" class="channel-actions">Actions</th>
                                     <th data-sort="rx" data-i18n="channelColRx">RX</th>
                                     <th data-sort="name" data-i18n="channelColName">Name</th>
                                     <th data-sort="mode" data-i18n="channelColMode">Mode</th>
@@ -189,7 +190,6 @@
                                     <th data-i18n="channelColOffset">Offset</th>
                                     <th data-i18n="channelColTone">Tone</th>
                                     <th data-i18n="channelColScan">Scan</th>
-                                    <th data-i18n="channelColActions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="channelRows"></tbody>
@@ -278,6 +278,7 @@
                             </div>
                         </div>
                         <div class="modal-actions">
+                            <button class="btn danger channel-delete-btn" id="channelEditDelete" type="button" data-i18n="channelDelete">Delete</button>
                             <button class="btn" id="channelEditCancel" type="button" data-i18n="channelCancel">Cancel</button>
                             <button class="btn primary" id="channelEditSave" type="button" data-i18n="channelSave">Save</button>
                         </div>

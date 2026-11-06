@@ -112,6 +112,15 @@
     font-size: 12px;
 }
 
+#pane-tools .channel-table .channel-actions {
+    width: 1%;
+    white-space: nowrap;
+}
+
+#pane-tools .channel-delete-btn {
+    margin-right: auto;
+}
+
 #pane-tools .channel-modal .modal-content {
     max-width: 760px;
 }
