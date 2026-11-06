@@ -76,8 +76,8 @@
 
 | 文件 | 字模来源 | 需要刷字库 |
 |---|---|---|
-| `LBJRADIO-cn.v5.6.1.bin` | 内嵌常用汉字 | 否 |
-| `LBJRADIO-font.v5.6.1.bin` | 外部字库 | 是 |
+| `LBJRADIO-cn.v5.6.2.bin` | 内嵌常用汉字 | 否 |
+| `LBJRADIO-font.v5.6.2.bin` | 外部字库 | 是 |
 
 `LBJRADIO-cn` 开箱即用，内嵌表以外的字留空；`LBJRADIO-font` 支持完整
 GB2312、体积更小，但没刷字库时中文全部空白。字库刷写见「中文字体」一节。
