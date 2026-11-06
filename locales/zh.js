@@ -591,7 +591,7 @@ window.UVSTUDIO_LOCALES.zh = {
   "channelRebootSent": "已发送重启命令",
   "channelEmpty": "没有可显示的信道。",
   "channelModifiedCount": "{0} 个已修改",
-  "channelPageNote": "<strong>注意：</strong>此页需要桌面版 Chrome/Edge/Opera 和 K 头写频线。写入信道后请重启电台；中文名称需要中文字体。",
+  "channelPageNote": "<strong>注意：</strong>此页需要桌面版 Chrome/Edge/Opera。信道读写可用 USB-C（Type-C）数据线或 K 头写频线；写入信道后请重启电台；中文名称需要中文字体。",
 
   /* ── LBJ 车次日志页面（tools/lbj_log） ─────────────────────────────────── */
   "studio_nav_lbj_log": "车次日志",
@@ -617,13 +617,13 @@ window.UVSTUDIO_LOCALES.zh = {
   "lbjReading": "正在读取车次日志（256 × 128 字节）…",
   "lbjReadDone": "从 {1} 读到 {0} 条记录。",
   "lbjUnsupported": "该固件不应答 0x0738（外部 flash 读写）。请使用 Fusion 或多系统版本。",
-  "lbjBrowserNote": "本页需要桌面版 Chrome / Edge / Opera（Web Serial API）和 K 头写频线。请先关闭 UV Studio / K5Viewer —— 串口同一时刻只能被一个页面占用。",
-  "lbjPageNote": "<strong>注意：</strong> 本页需要桌面版 Chrome / Edge / Opera（Web Serial API）和 K 头写频线。请先关闭 UV Studio / K5Viewer —— 串口同一时刻只能被一个页面占用。",
+  "lbjBrowserNote": "本页读取车次日志需要桌面版 Chrome / Edge / Opera（Web Serial API）和 K 头写频线。请先关闭 UV Studio / K5Viewer —— 串口同一时刻只能被一个页面占用。",
+  "lbjPageNote": "<strong>注意：</strong> 本页读取车次日志需要桌面版 Chrome / Edge / Opera（Web Serial API）和 K 头写频线。请先关闭 UV Studio / K5Viewer —— 串口同一时刻只能被一个页面占用。",
   "lbjBrowserUnsupported": "该浏览器不支持 Web Serial API。请使用桌面版 Chrome / Edge / Opera。",
 
   "catalogReload": "刷新列表",
   "flashPageDescription": "把固件写入电台。电台需先进入 DFU 模式（按住 PTT 开机）。",
-  "flashPageNote": "<strong>注意：</strong> 刷固件会覆盖电台的主固件。请使用桌面版 Chrome / Edge / Opera 与 K 头写频线，刷写过程中不要断开连接。",
+  "flashPageNote": "<strong>注意：</strong> 刷固件会覆盖电台的主固件。请使用桌面版 Chrome / Edge / Opera；USB-C（Type-C）数据线或 K 头写频线均可，刷写过程中不要断开连接。",
   "slotsPageNote": "<strong>注意：</strong> 多固件只写入外部 flash，不影响电台主固件。开机时按住 MENU 即可选择插槽。",
   "appsPageNote": "<strong>注意：</strong> 应用来自在线归档目录的 archive/apps，只写入外部 flash。安装后可在电台的 F + 7 菜单中启动。",
   "studio_nav_calibration_backup": "校准备份",

@@ -591,7 +591,7 @@ window.UVSTUDIO_LOCALES.en = {
   "channelRebootSent": "Reboot command sent",
   "channelEmpty": "No channels to show.",
   "channelModifiedCount": "{0} modified",
-  "channelPageNote": "<strong>Note:</strong> this page needs desktop Chrome/Edge/Opera and a K-plug cable. Reboot the radio after writing; Chinese names require the Chinese font.",
+  "channelPageNote": "<strong>Note:</strong> this page needs desktop Chrome/Edge/Opera. Channel read/write works with a USB-C (Type-C) data cable or a K-plug cable. Reboot the radio after writing; Chinese names require the Chinese font.",
 
   /* ── LBJ Log companion page (tools/lbj_log) ────────────────────────────── */
   "studio_nav_lbj_log": "LBJ Log",
@@ -617,13 +617,13 @@ window.UVSTUDIO_LOCALES.en = {
   "lbjReading": "Reading the LBJ log (256 × 128 bytes)…",
   "lbjReadDone": "Read {0} records from {1}.",
   "lbjUnsupported": "This firmware does not answer 0x0738 (external flash access). Use a Fusion or multiboot build.",
-  "lbjBrowserNote": "This page needs Chrome, Edge or Opera on desktop (Web Serial API), and a K-plug programming cable. Close UV Studio / K5Viewer first — only one page can own the port.",
-  "lbjPageNote": "<strong>Note:</strong> This page needs Chrome, Edge or Opera on desktop (Web Serial API), and a K-plug programming cable. Close UV Studio / K5Viewer first — only one page can own the port.",
+  "lbjBrowserNote": "This page needs Chrome, Edge or Opera on desktop (Web Serial API) and a K-plug programming cable to read the LBJ log. Close UV Studio / K5Viewer first — only one page can own the port.",
+  "lbjPageNote": "<strong>Note:</strong> This page needs Chrome, Edge or Opera on desktop (Web Serial API) and a K-plug programming cable to read the LBJ log. Close UV Studio / K5Viewer first — only one page can own the port.",
   "lbjBrowserUnsupported": "This browser has no Web Serial API. Use Chrome, Edge or Opera on desktop.",
 
   "catalogReload": "Refresh list",
   "flashPageDescription": "Write a firmware image to the radio. The radio must be in DFU mode (hold PTT while powering on).",
-  "flashPageNote": "<strong>Note:</strong> flashing replaces the radio's main firmware. Use Chrome, Edge or Opera on desktop with a K-plug cable, and do not unplug during the write.",
+  "flashPageNote": "<strong>Note:</strong> flashing replaces the radio's main firmware. Use Chrome, Edge or Opera on desktop with a USB-C (Type-C) data cable or a K-plug cable, and do not unplug during the write.",
   "slotsPageNote": "<strong>Note:</strong> firmware slots only touch the external flash, never the main firmware. Hold MENU at power-on to pick a slot.",
   "appsPageNote": "<strong>Note:</strong> apps come from archive/apps in the online archive and are written to the external flash only. Launch them from the radio's F + 7 menu.",
   "studio_nav_calibration_backup": "Calibration backup",
