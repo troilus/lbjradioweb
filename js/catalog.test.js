@@ -58,6 +58,21 @@ test('categorizeFirmware groups by edition, newest first', () => {
   assert.equal(lbj.entries[0].url, 'https://lbj.xanyi.eu.org/archive/LBJRADIO.v5.10.0.bin');
 });
 
+test('parseFirmwareName lists K5 TDCS and sorts newest first', () => {
+  const parsed = catalog.parseFirmwareName('k5tdcs-v1.0.1.bin');
+  assert.equal(parsed.base, 'k5tdcs');
+  assert.equal(parsed.label, 'K5 TDCS');
+  assert.equal(parsed.version, '1.0.1');
+
+  const groups = catalog.categorizeFirmware([
+    { name: 'k5tdcs-v1.0.0.bin', size: 1 },
+    { name: 'k5tdcs-v1.0.1.bin', size: 2 }
+  ]);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].label, 'K5 TDCS');
+  assert.deepEqual(groups[0].entries.map(entry => entry.version), ['1.0.1', '1.0.0']);
+});
+
 test('categorizeApps groups and sorts versions numerically', () => {
   const groups = catalog.categorizeApps([
     { name: 'LBJRX.v5.5.0.app', size: 6058 },

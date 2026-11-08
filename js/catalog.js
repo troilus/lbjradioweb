@@ -84,6 +84,10 @@
     if (first === "quansheng") {
       return ["Quansheng"].concat(tokens.slice(1).map(token => titleCase(token))).join(" ").trim();
     }
+    // UV-K5 TDCS firmware: archive/k5tdcs-v<version>.bin
+    if (first === "k5tdcs") {
+      return "K5 TDCS";
+    }
     return text;
   }
 
