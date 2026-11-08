@@ -4,6 +4,8 @@
  * 0x0738/0x0739 raw physical-flash read are adapted from UV Studio's
  * js/flash.js (armel/armel.github.io @ v2.0.0, flash.js?v=84) so this page talks
  * to the radio exactly the way UV Studio does. Only the LBJ zone walk is new.
+ * The V1 (2.00.06 / 3.x bootloader) flasher follows sq5bpf/k5prog's 0x0519
+ * page layout; see the "Legacy (V1) bootloader flashing" section below.
  *
  * Wire format: AB CD | size(u16 LE) | payload | CRC16/XMODEM(u16 LE) | DC BA,
  * XOR-obfuscated with OBFUS_TBL from byte 4 on. Replies carry no CRC; the two
@@ -843,6 +845,169 @@
         onProgress(100);
     }
 
+    // ---- Legacy (V1) bootloader flashing -------------------------------------
+    //
+    // UV-K5/K6 V1 radios ship with the old 2.00.06 / 3.x bootloader, which uses
+    // the k5prog/uvmod 0x0518/0x0530/0x0519/0x051A exchange instead of the
+    // 7.00.07 page protocol above. The 0x0519 payload below is the layout
+    // sq5bpf/k5prog sends: magic, address high/low, final address high/low,
+    // length low/high, two zero bytes, then the 256-byte page.
+
+    const LEGACY_PAGE_SIZE = 0x100;
+    const LEGACY_MAX_IMAGE = 0xF000; // 60 KiB; 0xF000..0xFFFF is the bootloader
+    const LEGACY_VERSION_WILDCARD = "*.01.23";
+
+    /* 268-byte 0x0519 payload. `pageCount` is the rounded-up total page count,
+       which the bootloader receives as the final-address high byte. */
+    function buildLegacyFlashPage(image, pageIndex, pageCount) {
+        const offset = pageIndex * LEGACY_PAGE_SIZE;
+        const length = Math.min(LEGACY_PAGE_SIZE, image.length - offset);
+        const payload = new Uint8Array(268);
+
+        payload[0] = 0x8a;
+        payload[1] = 0x8d;
+        payload[2] = 0x9f;
+        payload[3] = 0x1d;
+        payload[4] = (offset >> 8) & 0xff;
+        payload[5] = offset & 0xff;
+        payload[6] = (pageCount * LEGACY_PAGE_SIZE >> 8) & 0xff;
+        payload[7] = 0;
+        payload[8] = length & 0xff;
+        payload[9] = (length >> 8) & 0xff;
+        payload[10] = 0;
+        payload[11] = 0;
+        payload.set(image.subarray(offset, offset + length), 12);
+        return payload;
+    }
+
+    /* The V1 bootloader spams 0x0518; accept the first well-formed one instead
+       of the five-interval check used for the 7.00.07 stream. */
+    async function waitForLegacyBootloader(onLog) {
+        const log = onLog || (() => {});
+        readBuffer = [];
+        const deadline = performance.now() + 10000;
+
+        while (performance.now() < deadline) {
+            await new Promise(resolve => setTimeout(resolve, 20));
+            const message = fetchMessage(readBuffer);
+            if (!message) continue;
+            if (message.msgType !== MSG_NOTIFY_DEV_INFO) continue;
+            // 0x0518 payload: 16-byte UID, then a NUL-terminated version string.
+            // k5prog accepts message lengths 18..50, i.e. 16..48 data bytes
+            // here (the 2 trailing bytes are included), because clones differ.
+            if (message.data.length < 16 || message.data.length > 48) continue;
+
+            const uid = message.data.slice(0, 16);
+            let end = Math.min(message.data.length, 32);
+            for (let i = 16; i < end; i++) {
+                if (message.data[i] === 0) { end = i; break; }
+            }
+            return {
+                uid,
+                blVersion: new TextDecoder().decode(message.data.slice(16, end))
+            };
+        }
+
+        log("Bootloader not detected.", "error");
+        throw Object.assign(
+            new Error("The radio did not announce itself. Is it in flash mode?"),
+            { code: "NO_BOOTLOADER" });
+    }
+
+    /* 0x0530: present a 16-byte firmware version. A leading "*" is accepted by
+       every known V1 bootloader; packed images carry their own version block. */
+    async function legacyHandshake(versionBlock, onLog) {
+        const log = onLog || (() => {});
+        const data = new Uint8Array(16);
+        if (versionBlock && versionBlock.length >= 16) {
+            data.set(versionBlock.subarray(0, 16), 0);
+        } else {
+            const wildcard = new TextEncoder().encode(LEGACY_VERSION_WILDCARD);
+            data.set(wildcard.subarray(0, 8), 0);
+        }
+
+        const message = createMessage(MSG_NOTIFY_BL_VER, 16);
+        message.set(data, 4);
+        readBuffer = [];
+        await sendMessage(message);
+
+        // The bootloader answers the version message with more 0x0518 spam.
+        // Wait for one fresh packet (up to 1 s) so the version is processed
+        // before the first 0x0519 page; clones that stay silent still proceed.
+        const deadline = performance.now() + 1000;
+        while (performance.now() < deadline) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            const reply = fetchMessage(readBuffer);
+            if (!reply) continue;
+            if (reply.msgType === MSG_NOTIFY_DEV_INFO) break;
+        }
+        log("Handshake complete.", "success");
+    }
+
+    /* 0x0519 page programming. The reply is 0x051A with the address at
+       payload[4..5]; a page is retried a few times before giving up. */
+    async function programFirmwareLegacy(image, options) {
+        const settings = options || {};
+        const onProgress = settings.onProgress || (() => {});
+        const onLog = settings.onLog || (() => {});
+        const isCancelled = settings.isCancelled || (() => false);
+
+        if (image.length > LEGACY_MAX_IMAGE) {
+            throw new Error(`Firmware is larger than ${LEGACY_MAX_IMAGE} bytes.`);
+        }
+
+        const pageCount = Math.ceil(image.length / LEGACY_PAGE_SIZE);
+        const MAX_RETRIES = 3;
+        const REPLY_TIMEOUT_MS = 2000;
+
+        for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+            if (isCancelled()) throw new Error("Cancelled.");
+            onProgress((pageIndex / pageCount) * 100);
+
+            const payload = buildLegacyFlashPage(image, pageIndex, pageCount);
+            const addressHigh = payload[4];
+            let acked = false;
+
+            for (let attempt = 0; attempt <= MAX_RETRIES && !acked; attempt++) {
+                readBuffer = [];
+                const message = createMessage(MSG_PROG_FW, payload.length);
+                message.set(payload, 4);
+                await sendMessage(message);
+
+                const deadline = performance.now() + REPLY_TIMEOUT_MS;
+                while (performance.now() < deadline) {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                    const reply = fetchMessage(readBuffer);
+                    if (!reply) continue;
+                    if (reply.msgType === MSG_NOTIFY_DEV_INFO) continue;
+                    if (reply.msgType !== MSG_PROG_FW_RESP) continue;
+                    // 0x051A payload: magic(4), address high/low, 0, 0.
+                    if (reply.data.length >= 6 && reply.data[4] !== addressHigh) {
+                        onLog(`Page ${pageIndex + 1}/${pageCount}: reply for 0x${(reply.data[4] << 8).toString(16)} ignored.`, "info");
+                        continue;
+                    }
+                    acked = true;
+                    break;
+                }
+
+                if (!acked && attempt < MAX_RETRIES) {
+                    onLog(`Page ${pageIndex + 1}/${pageCount}: retry ${attempt + 1}.`, "info");
+                }
+            }
+
+            if (!acked) {
+                throw Object.assign(
+                    new Error(`No confirmation for page ${pageIndex + 1}/${pageCount}.`),
+                    { code: "FLASH_FAILED", page: pageIndex });
+            }
+
+            if ((pageIndex + 1) % 10 === 0 || pageIndex === pageCount - 1) {
+                onLog(`Page ${pageIndex + 1}/${pageCount} OK.`, "success");
+            }
+        }
+        onProgress(100);
+    }
+
     // 0x05DD: leave serial mode (reboots into the bootloader under ENABLE_OVERLAY).
     async function reboot() {
         if (!port) return;
@@ -856,6 +1021,9 @@
         READ_CHUNK,
         FW_PAGE_SIZE,
         FW_MIN_BOOTLOADER,
+        LEGACY_PAGE_SIZE,
+        LEGACY_MAX_IMAGE,
+        LEGACY_VERSION_WILDCARD,
         MSG_DEV_INFO_REQ,
         MSG_DEV_INFO_RESP,
         MSG_READ_FLASH,
@@ -919,6 +1087,10 @@
         waitForBootloader,
         performHandshake,
         programFirmware,
+        buildLegacyFlashPage,
+        waitForLegacyBootloader,
+        legacyHandshake,
+        programFirmwareLegacy,
         reboot,
         // Operation guard from the UV Studio serial controller, so the status
         // pill can show "Reading LBJ Log…" and block re-entry.

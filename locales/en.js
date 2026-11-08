@@ -669,5 +669,37 @@ window.UVSTUDIO_LOCALES.en = {
   "studio_operation_apps_delete_all": "Deleting all apps…",
 
   "studio_nav_guide": "使用说明",
-  "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。"
+  "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。",
+
+  /* ── K5/K6 V1 TDCS decode (legacy bootloader) ───────────────────────────── */
+  "studio_nav_k5tdcs": "K5/K6 V1 TDCS decode",
+  "studio_operation_flash_k5_firmware": "Flashing K5/K6 V1 firmware…",
+  "pageScopeWarning": "This page is for UV-K1 and K5/K6 V3 radios.",
+  "k5Warning": "For V1 UV-K5/K6 radios only.",
+  "k5UsageTitle": "How to use",
+  "k5Usage1": "Set the frequency.",
+  "k5Usage2": "Set Mode to TDC.",
+  "k5Usage3": "Wait for the decode popup. UP/DOWN scroll the history, 6/9 page, EXIT closes it.",
+  "k5Usage4": "Tip: for weak signals use single watch, set SQL to 0, or open the monitor.",
+  "k5Usage5": "Press F + 7 to open the history.",
+  "k5CalibrationTitle": "Calibration backup",
+  "k5CalibrationDescription": "Back up this radio's calibration before flashing. Leave the radio in normal mode (not flash mode), connect the K-plug cable and click the button to read the 512-byte calibration block.",
+  "k5FlashTitle": "Flash firmware",
+  "k5Step1": "Power off, hold PTT and power on to enter flash mode (the flashlight turns on, the screen stays dark).",
+  "k5Step2": "Connect the radio to the computer with a K-plug programming cable.",
+  "k5Step3": "Select the firmware version below and click Flash firmware.",
+  "k5Step4": "Power off and on again when done. Channels and settings are preserved.",
+  "k5FirmwareLabel": "K5/K6 V1 TDCS firmware",
+  "k5FlashBtn": "Flash firmware",
+  "k5Meta": "Selected {0} · {1} · {2}",
+  "k5FormatRaw": "raw image",
+  "k5FormatPacked": "packed image (version {0})",
+  "k5TooLarge": "Firmware {0} exceeds the 60 KiB V1 limit and cannot be flashed.",
+  "k5EmptyFirmware": "The firmware file is empty.",
+  "k5FlashWaiting": "Waiting for the radio in flash mode (hold PTT at power-on)…",
+  "k5FlashNotV1": "Bootloader {0} is not a V1 bootloader; this page only supports V1 UV-K5/K6 radios. Use the Flash firmware page for V3/K1.",
+  "k5FlashPowerCycle": "Flashing complete. Power the radio off and on again.",
+  "k5NoBootloader": "Flash mode not detected. Power off, hold PTT and power on, then retry when the flashlight is on.",
+  "k5CatalogEmpty": "No k5tdcs firmware in the archive yet — load a local file instead.",
+  "k5PageNote": "<strong>Note:</strong> this page flashes TDCS decode firmware to V1 UV-K5/K6 radios over a K-plug cable. V1 only; flashing only covers the firmware area, so channels and settings are preserved. Do not unplug during the write."
 };

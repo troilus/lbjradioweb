@@ -146,6 +146,7 @@
 
   function categorizeFirmware(files) {
     return groupEntries((Array.isArray(files) ? files : [])
+      .filter(file => !isK5TdcsFile(file && file.name))
       .map(file => {
         const parsed = parseFirmwareName(file && file.name);
         if (!parsed) return null;
@@ -156,6 +157,44 @@
         });
       })
       .filter(Boolean));
+  }
+
+  // V1-only TDCS images share the archive root but must never show up in the
+  // V3/K1 firmware lists: they are too small for those radios and use the old
+  // bootloader protocol. They get their own page and their own list.
+  const K5_TDCS_PATTERN = /^k5tdcs(?:[-_.]|$)/i;
+
+  function isK5TdcsFile(name) {
+    return typeof name === 'string' &&
+      /\.bin$/i.test(name) && K5_TDCS_PATTERN.test(name);
+  }
+
+  function parseK5TdcsVersion(name) {
+    const match = String(name || '').match(/^k5tdcs[-_.]v?(\d+(?:\.\d+)*)/i);
+    return match ? match[1] : '';
+  }
+
+  function categorizeK5Firmware(files) {
+    return (Array.isArray(files) ? files : [])
+      .filter(file => isK5TdcsFile(file && file.name))
+      .map(file => {
+        const name = file.name;
+        return {
+          name,
+          kind: 'firmware',
+          base: 'k5tdcs',
+          group: 'k5tdcs',
+          label: 'K5/K6 V1 TDCS',
+          version: parseK5TdcsVersion(name),
+          size: Number(file.size) || 0,
+          path: ARCHIVE_PATH + '/' + name,
+          url: downloadUrl(name)
+        };
+      })
+      .sort((a, b) => {
+        const delta = compareVersionDesc(a.version, b.version);
+        return delta !== 0 ? delta : a.name.localeCompare(b.name);
+      });
   }
 
   function categorizeApps(files) {
@@ -364,6 +403,13 @@
     return Object.assign(result, { groups: categorizeFirmware(result.files) });
   }
 
+  async function loadK5Firmware(options) {
+    const result = await loadListing({
+      path: ARCHIVE_PATH, cacheKey: CACHE_FIRMWARE_KEY, force: options && options.force
+    });
+    return Object.assign(result, { entries: categorizeK5Firmware(result.files) });
+  }
+
   async function loadApps(options) {
     const result = await loadListing({
       path: APPS_PATH, cacheKey: CACHE_APPS_KEY, force: options && options.force
@@ -400,8 +446,9 @@
     // pure helpers
     isFirmwareFile, isAppFile, splitVersionedName, parseFirmwareName, parseAppName,
     categorizeFirmware, categorizeApps, groupEntries, downloadUrl, compareVersionDesc,
+    isK5TdcsFile, parseK5TdcsVersion, categorizeK5Firmware,
     formatSize, formatEntryLabel, flatten, findEntry, findNewestFor,
     // runtime
-    loadFirmware, loadApps, fetchBinary, boot
+    loadFirmware, loadK5Firmware, loadApps, fetchBinary, boot
   };
 });

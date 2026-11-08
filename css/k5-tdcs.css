@@ -1,0 +1,48 @@
+/* K5/K6 V1 TDCS 解码页 + 各页面适用范围提示。
+   单独成文件，保持 vendored 的 tools.css / studio.css 原样不动。 */
+
+/* 新页面顶部的 V1 专用警告：红字 + 红色左边框。 */
+#pane-tools .k5-warning {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--error);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--error);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* 其余页面顶部的适用范围提示，比 V1 警告稍小。 */
+#pane-tools .page-scope-warning {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border: 1px solid var(--error);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: rgba(239, 68, 68, 0.06);
+  color: var(--error);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+#pane-tools .k5-usage h2,
+#pane-tools .k5-calibration h2,
+#pane-tools .k5-flash h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+#pane-tools .k5-usage .guide-steps,
+#pane-tools .k5-flash .guide-steps {
+  margin-bottom: 0;
+}
+
+#pane-tools .k5-meta.is-error {
+  color: var(--error);
+  font-weight: 600;
+}

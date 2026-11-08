@@ -10,7 +10,7 @@
     "use strict";
 
     const VERSION = "0.21";
-    const ROUTES = ["guide", "calibration", "flash", "slots", "apps", "channels", "lbj-log"];
+    const ROUTES = ["guide", "calibration", "flash", "slots", "apps", "channels", "lbj-log", "k5tdcs"];
 
     const serial = window.LBJSerial;
     const controller = window.UVStudioSerial;
@@ -36,6 +36,7 @@
         "dump-calibration": "studio_operation_dump_calibration",
         "restore-calibration": "studio_operation_restore_calibration",
         "flash-firmware": "studio_operation_flash_firmware",
+        "flash-k5-firmware": "studio_operation_flash_k5_firmware",
         "slots-refresh": "studio_operation_slots_refresh",
         "slots-write": "studio_operation_slots_write",
         "slots-erase": "studio_operation_slots_erase",
@@ -55,7 +56,8 @@
         "flash": "flashPageNote",
         "slots": "slotsPageNote",
         "apps": "appsPageNote",
-        "channels": "channelPageNote"
+        "channels": "channelPageNote",
+        "k5tdcs": "k5PageNote"
     };
 
     let currentOperation = null;

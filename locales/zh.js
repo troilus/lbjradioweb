@@ -669,5 +669,37 @@ window.UVSTUDIO_LOCALES.zh = {
   "studio_operation_apps_delete_all": "正在删除全部应用…",
 
   "studio_nav_guide": "使用说明",
-  "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。"
+  "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。",
+
+  /* ── K5/K6 V1 TDCS 解码（旧版引导程序） ─────────────────────────────────── */
+  "studio_nav_k5tdcs": "K5/K6 V1 TDCS 解码",
+  "studio_operation_flash_k5_firmware": "正在刷写 K5/K6 V1 固件…",
+  "pageScopeWarning": "此页面适用于UV-K1 K5/K6 v3版本机器",
+  "k5Warning": "只适用于V1版本的UV-K5/K6 设备",
+  "k5UsageTitle": "使用说明",
+  "k5Usage1": "频率设置好。",
+  "k5Usage2": "模式（Mode）改为 TDC。",
+  "k5Usage3": "等待信号解码后会弹窗，上下翻页历史，6/9 翻页，EXIT 退出弹窗。",
+  "k5Usage4": "技巧：弱信号下单守、SQL 设置为零或者监听。",
+  "k5Usage5": "按 F + 7 打开历史。",
+  "k5CalibrationTitle": "校准文件备份",
+  "k5CalibrationDescription": "刷机前建议先备份本机校准数据。电台正常开机（不要进刷机模式），用 K 头线连接，点下面的按钮读取 512 字节校准数据。",
+  "k5FlashTitle": "刷写固件",
+  "k5Step1": "关机，按住 PTT 再开机，进入刷机模式（手电筒亮、屏幕不亮）。",
+  "k5Step2": "用 K 头写频线连接电脑和电台。",
+  "k5Step3": "选择下面的固件版本，点「刷写固件」。",
+  "k5Step4": "刷完后关机，再正常开机。信道和设置不受影响。",
+  "k5FirmwareLabel": "K5/K6 V1 TDCS 固件",
+  "k5FlashBtn": "刷写固件",
+  "k5Meta": "已选择 {0} · {1} · {2}",
+  "k5FormatRaw": "原始镜像",
+  "k5FormatPacked": "打包镜像（版本 {0}）",
+  "k5TooLarge": "固件 {0} 超过 V1 的 60 KiB 上限，无法刷写。",
+  "k5EmptyFirmware": "固件文件为空。",
+  "k5FlashWaiting": "等待电台进入刷机模式（按住 PTT 开机）…",
+  "k5FlashNotV1": "引导程序 {0} 不是 V1 版本；本页只支持 V1 的 UV-K5/K6。V3/K1 请用「刷固件」页面。",
+  "k5FlashPowerCycle": "刷写完成，请关机后重新开机。",
+  "k5NoBootloader": "没有检测到刷机模式。请关机，按住 PTT 再开机，看到手电筒亮后重试。",
+  "k5CatalogEmpty": "归档里还没有 k5tdcs 固件，可以先用本地文件。",
+  "k5PageNote": "<strong>注意：</strong> 本页用 K 头写频线给 V1 版 UV-K5/K6 刷 TDCS 解码固件。只支持 V1；刷写只覆盖固件区，信道和设置不变。刷写过程中不要断开连接。"
 };

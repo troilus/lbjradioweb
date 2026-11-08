@@ -58,19 +58,32 @@ test('categorizeFirmware groups by edition, newest first', () => {
   assert.equal(lbj.entries[0].url, 'https://lbj.xanyi.eu.org/archive/LBJRADIO.v5.10.0.bin');
 });
 
-test('parseFirmwareName lists K5 TDCS and sorts newest first', () => {
+test('parseFirmwareName still parses K5 TDCS but the V3 list hides it', () => {
   const parsed = catalog.parseFirmwareName('k5tdcs-v1.0.1.bin');
   assert.equal(parsed.base, 'k5tdcs');
   assert.equal(parsed.label, 'K5 TDCS');
   assert.equal(parsed.version, '1.0.1');
 
+  // V1-only images must never show up in the UV-K1 / K5 V3 firmware list.
   const groups = catalog.categorizeFirmware([
     { name: 'k5tdcs-v1.0.0.bin', size: 1 },
-    { name: 'k5tdcs-v1.0.1.bin', size: 2 }
+    { name: 'k5tdcs-v1.0.1.bin', size: 2 },
+    { name: 'LBJRADIO.v5.6.2.bin', size: 3 }
   ]);
   assert.equal(groups.length, 1);
-  assert.equal(groups[0].label, 'K5 TDCS');
-  assert.deepEqual(groups[0].entries.map(entry => entry.version), ['1.0.1', '1.0.0']);
+  assert.equal(groups[0].label, 'LBJRADIO');
+});
+
+test('categorizeK5Firmware lists the V1 TDCS images newest first', () => {
+  const entries = catalog.categorizeK5Firmware([
+    { name: 'k5tdcs-v1.0.0.bin', size: 100 },
+    { name: 'k5tdcs_v1.2.0.bin', size: 200 },
+    { name: 'LBJRADIO.v5.6.2.bin', size: 300 },
+    { name: 'k5tdcs-1.1.0.bin', size: 400 }
+  ]);
+  assert.deepEqual(entries.map(entry => entry.version), ['1.2.0', '1.1.0', '1.0.0']);
+  assert.equal(entries[0].url, 'https://lbj.xanyi.eu.org/archive/k5tdcs_v1.2.0.bin');
+  assert.equal(entries[0].size, 200);
 });
 
 test('categorizeApps groups and sorts versions numerically', () => {

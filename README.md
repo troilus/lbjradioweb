@@ -14,6 +14,7 @@
 | **多固件** | 把多个固件写进外部 flash 的插槽，开机按住 `MENU` 选择 |
 | **管理安装 APP** | 把 `.app` 覆盖程序装进外部 flash 的应用槽，电台 `F + 7` 菜单启动 |
 | **LBJ 车次日志** | 读取 / 导出车次日志（本页只读） |
+| **K5/K6 V1 TDCS 解码** | 给 V1 版 UV-K5/K6 刷 TDCS 解码固件（旧版引导程序，K 头线） |
 
 页面外观、布局、串口连接方式**照搬 UV Studio**（`armel.github.io/uvstudio`）：同一套
 顶栏 / 侧栏 / 状态胶囊 / 主题切换 / 语言选择 / 表格 / 进度条 / Console，同一套
@@ -30,7 +31,7 @@
   K 头写频线；读取车次日志和刷字库需要 K 头写频线。
 - 车次日志、校准备份、多固件、APP 都在电台正常开机状态下操作；刷固件需要先进入 DFU 模式
   （按住 `PTT` 开机）。
-- 六个页面通过地址栏 hash 切换：`#guide`、`#calibration`、`#flash`、`#slots`、`#apps`、`#lbj-log`。
+- 八个页面通过地址栏 hash 切换：`#guide`、`#calibration`、`#flash`、`#slots`、`#apps`、`#channels`、`#lbj-log`、`#k5tdcs`。
 
 ### 使用说明
 
@@ -86,9 +87,25 @@ GB2312、体积更小，但没刷字库时中文全部空白。字库刷写见�
 手动签收、调车请求会单独记录，显示签收地点距离和二维码。`LBJRADIO-cn`
 因为内嵌字模和 flash 空间限制，没有这个窗口，其余 TDCS/KLW 功能相同。
 
-UV-K5 的 TDCS 接收固件单独发布为 `k5tdcs-v<版本>.bin`（例如
-`k5tdcs-v1.0.1.bin`），放在 `archive/` 下。网页刷机列表会自动列出，
-同一系列按版本号从新到旧排序。
+### K5/K6 V1 TDCS 解码
+
+V1 版 UV-K5/K6 的引导程序是旧的 `2.00.06` / `3.x`，上面的 DFU 流程要求
+`7.00.07`，所以 V1 机器要用这个页面。它走 k5prog / uvmod 的旧协议
+（`0x0518` / `0x0530` / `0x0519` / `0x051A`），只适用于 V1：
+
+1. 关机，按住 `PTT` 开机进入刷机模式（手电筒亮、屏幕不亮）；
+2. 用 K 头写频线连接，选 `archive/k5tdcs-v<版本>.bin` 或本地文件；
+3. 点 **刷写固件**，完成后关机重开。
+
+固件上限 60 KiB（`0x0000–0xEFFF`）。页面会自动识别原始 `.bin` 和
+uvmod/官方打包 `.bin`（打包文件先解包再写），引导程序 `4.x` / `7.x`
+会被拒绝。`k5tdcs-*.bin` 只在这个页面列出，不会出现在普通「刷固件」和
+「多固件」列表里。
+
+刷机前可以先在本页 **校准文件备份** 读取 V1 的 512 字节校准数据；
+V1 固定在 EEPROM `0x1E00–0x1FFF`（egzumer `SETTINGS_LoadCalibration`
+读 `0x1EC0` / `0x1EC8` / `0x1F40`，k5prog 把 `0x1D00` 以后当校准区），
+不要用 V3/K1 的 `0xB000`。
 
 ### 多固件
 
@@ -134,24 +151,27 @@ UV-K5 的 TDCS 接收固件单独发布为 `k5tdcs-v<版本>.bin`（例如
 ## 文件
 
 ```
-index.html            UV Studio 外壳 + 七个视图
+index.html            UV Studio 外壳 + 八个视图
 css/{core,studio,tools}.css   原样内置自 UV Studio（见下"来源"）
 css/lbj-log.css       本页自己的少量样式（宽屏/窄屏表格、等宽数字、列表工具栏）
 css/guide.css         使用说明页的步骤、表格和折叠分组样式
 css/channel-editor.css 信道编辑页的表格、筛选栏和编辑弹窗样式
+css/k5-tdcs.css       K5/K6 V1 页面红字警告、各页面适用范围提示
 archive/fonts/        中文字库（16x16.fon / 8x8.fon）、刷写脚本 font_write.py、
                       图形界面 font_write_gui.py + 打包好的 LBRFontWriter.exe
 js/studio-preferences.js      原样内置
 js/studio-i18n.js             原样内置（data-i18n 机制）
 js/studio-serial.js           原样内置（串口所有权仲裁）
 js/ui.js              外壳接线：Console / 进度条 / 状态胶囊 / 主题 / hash 路由 / 确认框
-js/serial.js          串口协议：连接 + 0x0514 + 0x0738/0x0739 + 校准 EEPROM / 插槽 / APP / DFU 命令
+js/serial.js          串口协议：连接 + 0x0514 + 0x0738/0x0739 + 校准 EEPROM / 插槽 / APP / DFU / V1 旧协议
 js/lbj-log.js         纯模块：32 字节记录解析 + CRC8 + CSV（可选 Node CLI）
 js/radio-format.js    纯模块：CRC32、FMB1 插槽头、FAP1 应用头、版本比较
 js/channel-format.js  纯模块：MR 信道记录、属性字、频率/band、GB2312 名称编解码
 js/catalog.js         纯模块：归档站目录（GitHub Contents API）+ 缓存 + 分组 + 下载
+js/k5-firmware.js     纯模块：K5/K6 V1 原始/打包固件识别、解包、60 KiB 限制
 js/app.js             LBJ 车次日志视图
 js/view-flash.js      刷固件视图
+js/view-k5tdcs.js     K5/K6 V1 TDCS 解码视图（校准备份 + 旧协议刷写）
 js/view-slots.js      多固件视图
 js/view-apps.js       管理安装 APP 视图
 js/view-calibration.js 校准备份 / 恢复视图
@@ -193,6 +213,7 @@ locales/{zh,en}.js    内置自 UV Studio，并在结尾追加本页新增的键
 | `js/view-apps.js` | `js/flash.js` + `js/app-catalog.js`（应用槽流程） | `?v=84` / `?v=20` |
 | `js/catalog.js` | `js/flash-catalog.js` + `js/app-catalog.js`（在线列表） | `?v=19` / `?v=20` |
 | `js/lbj-log.js` + `js/lbj-log.test.js` | `js/rf-log.js` + `tests/rf-log.test.js`（UMD 模块 + node:test 写法） | `?v=4` |
+| `js/serial.js` V1 部分 + `js/k5-firmware.js` | `sq5bpf/k5prog`（0x0519 页布局 / EEPROM 0x1E00 校准）+ `whosmatt/uvmod`（打包固件 CRC/XOR） | — |
 
 ## 在线固件 / APP 目录
 
@@ -211,15 +232,18 @@ Contents API 的 `main` 分支读取，因此不需要额外的清单文件：
 ## 自测
 
 ```sh
-node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js js/channel-format.test.js
+node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js js/channel-format.test.js js/k5-firmware.test.js js/k5-flash.test.js
 node --check js/serial.js
 node --check js/channel-format.js
 node --check js/view-channels.js
+node --check js/k5-firmware.js
+node --check js/view-k5tdcs.js
 ```
 
 覆盖：CRC8 固件向量、几何常量、全字段解析、方向三态、缺字段哨兵、未知车型码、
 未知距离、CRC 失败、commit 未写、整块扫描与空槽/坏记录计数、CSV（BOM/表头/CRLF/排序/引号）；
-以及 CRC32、FMB1 / FAP1 头的构造与解析、版本比较、文件名分组与筛选。
+以及 CRC32、FMB1 / FAP1 头的构造与解析、版本比较、文件名分组与筛选；K5/K6 V1 的
+CRC16/XMODEM、打包/原始固件识别、60 KiB 限制、0x0519 页布局与末页补零。
 
 也可以用 CLI 把一份已 dump 的镜像直接转成 CSV，用来和 Python 版逐字节对比：
 
@@ -240,6 +264,7 @@ cmp js.csv py.csv            # 应完全一致（中文表头用 --chinese）
 5. APP：装一个 `.app` → 列表里应出现名称和版本 → 电台 `F + 7` 菜单应能启动。
 6. 刷固件：DFU 刷写后电台应正常重启，版本号与所选文件一致。
 7. 校准备份：备份得到 512 字节的 `calibration.dat` → 原样恢复 → 电台重启后收发应正常。
+8. K5/K6 V1：按住 `PTT` 开机进刷机模式，页面应识别到 `2.x` / `3.x` 引导程序；刷入 `k5tdcs-v1.0.1.bin` 后关机重开应正常。校准备份应读 `0x1E00` 的 512 字节，而不是 V3/K1 的 `0xB000`。
 
 ---
 
