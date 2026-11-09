@@ -59,8 +59,8 @@
     const pattern = extension instanceof RegExp ? extension : new RegExp('\\.' + extension + '$', 'i');
     const stem = String(name || '').replace(pattern, '');
     const match = stem.match(/^(.*?)[._-]v(\d+(?:\.\d+)*)([._-].*)?$/i);
-    if (!match) return { base: stem, version: '' };
-    return { base: match[1], version: match[2] };
+    if (!match) return { base: stem, version: '', suffix: '' };
+    return { base: match[1], version: match[2], suffix: match[3] || '' };
   }
 
   function titleCase(text) {
@@ -93,7 +93,7 @@
 
   function parseFirmwareName(name) {
     if (!isFirmwareFile(name)) return null;
-    const { base, version } = splitVersionedName(name, 'bin');
+    const { base, version, suffix } = splitVersionedName(name, 'bin');
     const label = humanizeBase(base) || String(name);
     return {
       name,
@@ -101,13 +101,14 @@
       base,
       group: label.toLowerCase(),
       label,
-      version
+      version,
+      suffix
     };
   }
 
   function parseAppName(name) {
     if (!isAppFile(name)) return null;
-    const { base, version } = splitVersionedName(name, 'app');
+    const { base, version, suffix } = splitVersionedName(name, 'app');
     const label = humanizeBase(base) || String(name);
     return {
       name,
@@ -115,7 +116,8 @@
       base,
       group: label.toLowerCase(),
       label,
-      version
+      version,
+      suffix
     };
   }
 
@@ -236,10 +238,13 @@
     return `${Math.round(value / 1024)} KB`;
   }
 
-  // "v5.5.0 · 103 KB" — the version is the only thing users compare.
+  // "v5.5.0 · 103 KB" — the version is the only thing users compare.  The
+  // suffix is kept when the archive name carries one (e.g. v5.6.3-test), so a
+  // test build is not mistaken for the stable release of the same number.
   function formatEntryLabel(entry) {
     if (!entry) return '';
-    const parts = [entry.version ? 'v' + entry.version : entry.name];
+    const version = entry.version ? 'v' + entry.version + (entry.suffix || '') : entry.name;
+    const parts = [version];
     const size = formatSize(entry.size);
     if (size) parts.push(size);
     return parts.join(' · ');

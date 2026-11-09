@@ -10,6 +10,15 @@ test('parseFirmwareName keeps the project edition and version', () => {
   assert.equal(parsed.base, 'LBJRADIO');
   assert.equal(parsed.label, 'LBJRADIO');
   assert.equal(parsed.version, '5.5.0');
+  assert.equal(parsed.suffix, '');
+});
+
+test('parseFirmwareName keeps a -test suffix for the label', () => {
+  const parsed = catalog.parseFirmwareName('LBJRADIO-cn.v5.6.3-test.bin');
+  assert.equal(parsed.base, 'LBJRADIO-cn');
+  assert.equal(parsed.version, '5.6.3');
+  assert.equal(parsed.suffix, '-test');
+  assert.equal(catalog.formatEntryLabel({ ...parsed, size: 118792 }), 'v5.6.3-test · 116 KB');
 });
 
 test('parseFirmwareName humanizes F4HWN and Quansheng prefixes', () => {
