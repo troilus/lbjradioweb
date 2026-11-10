@@ -83,9 +83,10 @@
 `LBJRADIO-cn` 开箱即用，内嵌表以外的字留空；`LBJRADIO-font` 支持完整
 GB2312、体积更小，但没刷字库时中文全部空白。字库刷写见「中文字体」一节。
 
-`LBJRADIO-font` 额外带 **TDCS 表7 回执窗口**（菜单 `ACKMSG`）：自动确认、
-手动签收、调车请求会单独记录，显示签收地点距离和二维码。`LBJRADIO-cn`
-因为内嵌字模和 flash 空间限制，没有这个窗口，其余 TDCS/KLW 功能相同。
+`LBJRADIO-cn` 和 `LBJRADIO-font` 都带 **TDCS 表7 回执窗口**（菜单 `ACKMSG`）：
+自动确认、手动签收、调车请求会和车次号校核报告排在同一个历史列表里，
+显示签收地点距离和二维码。`LBJRADIO-cn` 为了腾出 flash 关掉了 `FULL WATCH`
+（A/B + 两个监听信道），`LBJRADIO-font` 两个功能都在。
 
 ### K5/K6 V1 TDCS 解码
 
