@@ -678,7 +678,7 @@ window.UVSTUDIO_LOCALES.en = {
   "k5Warning": "For V1 UV-K5/K6 radios only.",
   "k5UsageTitle": "How to use",
   "k5Usage1": "Set the frequency.",
-  "k5Usage2": "Set Mode to TDC.",
+  "k5Usage2": "Set Mode to TDC (TDCS decode) or LBJ (LBJ decode).",
   "k5Usage3": "Wait for the decode popup. UP/DOWN scroll the history, 6/9 page, EXIT closes it.",
   "k5Usage4": "Tip: for weak signals use single watch, set SQL to 0, or open the monitor.",
   "k5Usage5": "Press F + 7 to open the history.",
@@ -689,7 +689,7 @@ window.UVSTUDIO_LOCALES.en = {
   "k5Step2": "Connect the radio to the computer with a K-plug programming cable.",
   "k5Step3": "Select the firmware version below and click Flash firmware.",
   "k5Step4": "Power off and on again when done. Channels and settings are preserved.",
-  "k5FirmwareLabel": "K5/K6 V1 TDCS firmware",
+  "k5FirmwareLabel": "K5/K6 V1 LBJ/TDCS firmware",
   "k5FlashBtn": "Flash firmware",
   "k5Meta": "Selected {0} · {1} · {2}",
   "k5FormatRaw": "raw image",
@@ -700,6 +700,6 @@ window.UVSTUDIO_LOCALES.en = {
   "k5FlashNotV1": "Bootloader {0} is not a V1 bootloader; this page only supports V1 UV-K5/K6 radios. Use the Flash firmware page for V3/K1.",
   "k5FlashPowerCycle": "Flashing complete. Power the radio off and on again.",
   "k5NoBootloader": "Flash mode not detected. Power off, hold PTT and power on, then retry when the flashlight is on.",
-  "k5CatalogEmpty": "No k5tdcs firmware in the archive yet — load a local file instead.",
-  "k5PageNote": "<strong>Note:</strong> this page flashes TDCS decode firmware to V1 UV-K5/K6 radios over a K-plug cable. V1 only; flashing only covers the firmware area, so channels and settings are preserved. Do not unplug during the write."
+  "k5CatalogEmpty": "No k5lbj / k5tdcs firmware in the archive yet — load a local file instead.",
+  "k5PageNote": "<strong>Note:</strong> this page flashes LBJ/TDCS decode firmware to V1 UV-K5/K6 radios over a K-plug cable. V1 only; flashing only covers the firmware area, so channels and settings are preserved. Do not unplug during the write."
 };

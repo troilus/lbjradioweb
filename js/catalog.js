@@ -88,6 +88,10 @@
     if (first === "k5tdcs") {
       return "K5 TDCS";
     }
+    // UV-K5 TDCS+LBJ firmware: archive/k5lbj-v<version>.bin
+    if (first === "k5lbj") {
+      return "K5 LBJ";
+    }
     return text;
   }
 
@@ -148,7 +152,7 @@
 
   function categorizeFirmware(files) {
     return groupEntries((Array.isArray(files) ? files : [])
-      .filter(file => !isK5TdcsFile(file && file.name))
+      .filter(file => !isK5TdcsFile(file && file.name) && !isK5LbjFile(file && file.name))
       .map(file => {
         const parsed = parseFirmwareName(file && file.name);
         if (!parsed) return null;
@@ -165,10 +169,16 @@
   // V3/K1 firmware lists: they are too small for those radios and use the old
   // bootloader protocol. They get their own page and their own list.
   const K5_TDCS_PATTERN = /^k5tdcs(?:[-_.]|$)/i;
+  const K5_LBJ_PATTERN = /^k5lbj(?:[-_.]|$)/i;
 
   function isK5TdcsFile(name) {
     return typeof name === 'string' &&
       /\.bin$/i.test(name) && K5_TDCS_PATTERN.test(name);
+  }
+
+  function isK5LbjFile(name) {
+    return typeof name === 'string' &&
+      /\.bin$/i.test(name) && K5_LBJ_PATTERN.test(name);
   }
 
   function parseK5TdcsVersion(name) {
@@ -176,18 +186,26 @@
     return match ? match[1] : '';
   }
 
+  function parseK5LbjVersion(name) {
+    const match = String(name || '').match(/^k5lbj[-_.]v?(\d+(?:\.\d+)*)/i);
+    return match ? match[1] : '';
+  }
+
   function categorizeK5Firmware(files) {
     return (Array.isArray(files) ? files : [])
-      .filter(file => isK5TdcsFile(file && file.name))
+      .filter(file => isK5TdcsFile(file && file.name) || isK5LbjFile(file && file.name))
       .map(file => {
         const name = file.name;
+        const lbj = isK5LbjFile(name);
         return {
           name,
           kind: 'firmware',
-          base: 'k5tdcs',
+          base: lbj ? 'k5lbj' : 'k5tdcs',
           group: 'k5tdcs',
-          label: 'K5/K6 V1 TDCS',
-          version: parseK5TdcsVersion(name),
+          // Both images belong to the same V1 railway build; the newer one
+          // decodes TDCS and LBJ, the older one TDCS only.
+          label: 'K5/K6 V1 LBJ/TDCS',
+          version: lbj ? parseK5LbjVersion(name) : parseK5TdcsVersion(name),
           size: Number(file.size) || 0,
           path: ARCHIVE_PATH + '/' + name,
           url: downloadUrl(name)
@@ -452,6 +470,7 @@
     isFirmwareFile, isAppFile, splitVersionedName, parseFirmwareName, parseAppName,
     categorizeFirmware, categorizeApps, groupEntries, downloadUrl, compareVersionDesc,
     isK5TdcsFile, parseK5TdcsVersion, categorizeK5Firmware,
+    isK5LbjFile, parseK5LbjVersion,
     formatSize, formatEntryLabel, flatten, findEntry, findNewestFor,
     // runtime
     loadFirmware, loadK5Firmware, loadApps, fetchBinary, boot

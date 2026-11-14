@@ -95,6 +95,21 @@ test('categorizeK5Firmware lists the V1 TDCS images newest first', () => {
   assert.equal(entries[0].size, 200);
 });
 
+
+test('categorizeK5Firmware lists the V1 LBJ/TDCS images together', () => {
+  const entries = catalog.categorizeK5Firmware([
+    { name: 'k5tdcs-v1.0.3.bin', size: 58020 },
+    { name: 'k5lbj-v1.0.4.bin', size: 61096 },
+    { name: 'LBJRADIO.v5.6.5.bin', size: 1 }
+  ]);
+  assert.equal(entries.length, 2);
+  assert.equal(entries[0].name, 'k5lbj-v1.0.4.bin');
+  assert.equal(entries[0].label, 'K5/K6 V1 LBJ/TDCS');
+  assert.equal(entries[0].version, '1.0.4');
+  assert.equal(entries[1].name, 'k5tdcs-v1.0.3.bin');
+  assert.equal(entries[1].version, '1.0.3');
+});
+
 test('categorizeApps groups and sorts versions numerically', () => {
   const groups = catalog.categorizeApps([
     { name: 'LBJRX.v5.5.0.app', size: 6058 },

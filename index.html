@@ -135,10 +135,10 @@
                 <span class="nav-item-label" data-i18n="studio_nav_lbj_log">LBJ Log</span>
             </button>
             <button class="nav-item" data-route="k5tdcs"
-                    data-tool-view="k5tdcs" data-name="K5/K6 V1 TDCS"
+                    data-tool-view="k5tdcs" data-name="K5/K6 V1 LBJ/TDCS"
                     data-section-i18n="studio_nav_k5tdcs">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M9 20V5"/><path d="M14 20v-7"/><path d="M19 20V8"/></svg>
-                <span class="nav-item-label" data-i18n="studio_nav_k5tdcs">K5/K6 V1 TDCS 解码</span>
+                <span class="nav-item-label" data-i18n="studio_nav_k5tdcs">K5/K6 V1 LBJ/TDCS 解码</span>
             </button>
         </div>
         <div class="sidebar-foot">
@@ -341,7 +341,7 @@
                 </div>
             </div>
 
-            <!-- ─────────── K5/K6 V1 TDCS decode ─────────── -->
+            <!-- ─────────── K5/K6 V1 LBJ/TDCS decode ─────────── -->
             <div class="tool-view" id="k5tdcs-content" role="region" hidden>
                 <p class="k5-warning" data-i18n="k5Warning">只适用于V1版本的UV-K5/K6 设备</p>
 
@@ -349,7 +349,7 @@
                     <h2 data-i18n="k5UsageTitle">使用说明</h2>
                     <ol class="guide-steps">
                         <li data-i18n="k5Usage1">频率设置好。</li>
-                        <li data-i18n="k5Usage2">模式（Mode）改为 TDC。</li>
+                        <li data-i18n="k5Usage2">模式（Mode）改为 TDC（TDCS解码）或LBJ（LBJ解码）。</li>
                         <li data-i18n="k5Usage3">等待信号解码后会弹窗，上下翻页历史，6/9 翻页，EXIT 退出弹窗。</li>
                         <li data-i18n="k5Usage4">技巧：弱信号下单守、SQL 设置为零或者监听。</li>
                         <li data-i18n="k5Usage5">按 F + 7 打开历史。</li>
@@ -379,7 +379,7 @@
 
                 <section class="section firmware-catalog" id="k5FirmwareCatalogSection" aria-labelledby="k5FirmwareCatalogLabel" hidden>
                     <div class="firmware-catalog-toolbar">
-                        <label id="k5FirmwareCatalogLabel" for="k5FirmwareCatalogSelect" data-i18n="k5FirmwareLabel">K5/K6 V1 TDCS 固件</label>
+                        <label id="k5FirmwareCatalogLabel" for="k5FirmwareCatalogSelect" data-i18n="k5FirmwareLabel">K5/K6 V1 LBJ/TDCS 固件</label>
                         <button type="button" class="btn compact-toolbar-action" id="k5FirmwareReloadBtn"
                                 data-i18n="catalogReload">刷新列表</button>
                     </div>

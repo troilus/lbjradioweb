@@ -678,7 +678,7 @@ window.UVSTUDIO_LOCALES.zh = {
   "k5Warning": "只适用于V1版本的UV-K5/K6 设备",
   "k5UsageTitle": "使用说明",
   "k5Usage1": "频率设置好。",
-  "k5Usage2": "模式（Mode）改为 TDC。",
+  "k5Usage2": "模式（Mode）改为 TDC（TDCS解码）或LBJ（LBJ解码）。",
   "k5Usage3": "等待信号解码后会弹窗，上下翻页历史，6/9 翻页，EXIT 退出弹窗。",
   "k5Usage4": "技巧：弱信号下单守、SQL 设置为零或者监听。",
   "k5Usage5": "按 F + 7 打开历史。",
@@ -689,7 +689,7 @@ window.UVSTUDIO_LOCALES.zh = {
   "k5Step2": "用 K 头写频线连接电脑和电台。",
   "k5Step3": "选择下面的固件版本，点「刷写固件」。",
   "k5Step4": "刷完后关机，再正常开机。信道和设置不受影响。",
-  "k5FirmwareLabel": "K5/K6 V1 TDCS 固件",
+  "k5FirmwareLabel": "K5/K6 V1 LBJ/TDCS 固件",
   "k5FlashBtn": "刷写固件",
   "k5Meta": "已选择 {0} · {1} · {2}",
   "k5FormatRaw": "原始镜像",
@@ -700,6 +700,6 @@ window.UVSTUDIO_LOCALES.zh = {
   "k5FlashNotV1": "引导程序 {0} 不是 V1 版本；本页只支持 V1 的 UV-K5/K6。V3/K1 请用「刷固件」页面。",
   "k5FlashPowerCycle": "刷写完成，请关机后重新开机。",
   "k5NoBootloader": "没有检测到刷机模式。请关机，按住 PTT 再开机，看到手电筒亮后重试。",
-  "k5CatalogEmpty": "归档里还没有 k5tdcs 固件，可以先用本地文件。",
-  "k5PageNote": "<strong>注意：</strong> 本页用 K 头写频线给 V1 版 UV-K5/K6 刷 TDCS 解码固件。只支持 V1；刷写只覆盖固件区，信道和设置不变。刷写过程中不要断开连接。"
+  "k5CatalogEmpty": "归档里还没有 k5lbj / k5tdcs 固件，可以先用本地文件。",
+  "k5PageNote": "<strong>注意：</strong> 本页用 K 头写频线给 V1 版 UV-K5/K6 刷 LBJ/TDCS 解码固件。只支持 V1；刷写只覆盖固件区，信道和设置不变。刷写过程中不要断开连接。"
 };
