@@ -80,10 +80,6 @@
                 <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"></path>
             </svg>
         </button>
-        <select id="languageSelect" aria-label="Language" data-i18n-aria-label="studio_language">
-            <option value="zh">🇨🇳 中文</option>
-            <option value="en">🇬🇧 English</option>
-        </select>
     </div>
 </header>
 
@@ -968,17 +964,8 @@ python tools/font_write.py --port COM3 16x16.fon 8x8.fon</code></pre>
     </div>
 </div>
 
-<script src="locales/en.js"></script>
 <script src="locales/zh.js"></script>
 <script src="js/studio-preferences.js"></script>
-<script>
-  /* Default the shared UV Studio language key to Chinese on first visit.
-     Goes through UVStudioPreferences, whose in-memory fallback also covers
-     file:// pages where localStorage is unavailable or disabled. */
-  if (!window.UVStudioPreferences.get("currentLanguage", "")) {
-    window.UVStudioPreferences.set("currentLanguage", "zh");
-  }
-</script>
 <script src="js/studio-i18n.js"></script>
 <script src="js/studio-serial.js"></script>
 <script src="js/lbj-log.js"></script>

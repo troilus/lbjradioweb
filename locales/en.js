@@ -672,7 +672,7 @@ window.UVSTUDIO_LOCALES.en = {
   "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。",
 
   /* ── K5/K6 V1 TDCS decode (legacy bootloader) ───────────────────────────── */
-  "studio_nav_k5tdcs": "K5/K6 V1 TDCS decode",
+  "studio_nav_k5tdcs": "K5/K6 V1 LBJ/TDCS decode",
   "studio_operation_flash_k5_firmware": "Flashing K5/K6 V1 firmware…",
   "pageScopeWarning": "This page is for UV-K1 and K5/K6 V3 radios.",
   "k5Warning": "For V1 UV-K5/K6 radios only.",

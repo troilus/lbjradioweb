@@ -1,33 +1,11 @@
 /* UV Studio shared internationalization runtime.
-   Uses local JavaScript dictionaries so index.html remains file:// friendly. */
+   Chinese only: the language switcher was removed, so this runtime always
+   renders the zh dictionary. Local JavaScript dictionaries keep index.html
+   file:// friendly. */
 ;(function () {
     "use strict";
 
-    // Canonical key shared with K5Viewer and UVTools2 so the language choice
-    // follows the user across all three apps (same origin), exactly like the
-    // theme's shared "isDarkTheme" key. Older keys stay as read-only fallbacks.
-    const STORAGE_KEY = "currentLanguage";
-    const LEGACY_STORAGE_KEYS = ["uvstudio.language", "uv-k5-flasher-lang"];
-    const SUPPORTED_LANGUAGES = ["en", "fr", "it", "es", "de", "pt", "ru", "pl", "zh", "nl"];
     const dictionaries = window.UVSTUDIO_LOCALES || {};
-    const preferences = window.UVStudioPreferences;
-
-    function readStoredLanguage() {
-        const keys = [STORAGE_KEY].concat(LEGACY_STORAGE_KEYS);
-        for (const key of keys) {
-            const value = preferences.get(key, "");
-            if (value) return value;
-        }
-        return "en";
-    }
-
-    function storeLanguage(language) {
-        preferences.set(STORAGE_KEY, language);
-    }
-
-    function normalizeLanguage(language) {
-        return SUPPORTED_LANGUAGES.includes(language) ? language : "en";
-    }
 
     function interpolate(template, values) {
         let result = String(template);
@@ -44,13 +22,11 @@
     }
 
     const i18n = {
-        lang: normalizeLanguage(readStoredLanguage()),
-        dict: {},
+        lang: "zh",
+        dict: dictionaries.zh || {},
 
         t(key, ...values) {
-            const current = this.dict[key];
-            const fallback = dictionaries.en && dictionaries.en[key];
-            const template = current !== undefined ? current : (fallback !== undefined ? fallback : key);
+            const template = this.dict[key] !== undefined ? this.dict[key] : key;
             return interpolate(template, values);
         },
 
@@ -73,15 +49,13 @@
             });
         },
 
+        // Kept for callers that used to switch languages; this page is
+        // Chinese-only now, so it just re-renders the Chinese dictionary.
         setLanguage(language, options) {
-            const settings = Object.assign({ persist: true, announce: true }, options);
-            this.lang = normalizeLanguage(language);
-            this.dict = dictionaries[this.lang] || dictionaries.en || {};
-            document.documentElement.lang = this.lang;
-
-            const selector = document.getElementById("languageSelect");
-            if (selector) selector.value = this.lang;
-            if (settings.persist) storeLanguage(this.lang);
+            const settings = Object.assign({ announce: true }, options);
+            this.lang = "zh";
+            this.dict = dictionaries.zh || {};
+            document.documentElement.lang = "zh";
 
             this.apply(document);
             if (settings.announce) {
@@ -92,15 +66,7 @@
         },
 
         init() {
-            this.setLanguage(this.lang, { persist: false, announce: false });
-            storeLanguage(this.lang);
-
-            const selector = document.getElementById("languageSelect");
-            if (selector) {
-                selector.addEventListener("change", event => {
-                    this.setLanguage(event.target.value);
-                });
-            }
+            this.setLanguage("zh", { announce: false });
 
             window.dispatchEvent(new CustomEvent("i18n:ready", {
                 detail: { lang: this.lang }
@@ -116,15 +82,4 @@
         console.error("UV Studio i18n initialization failed:", error);
         window.uvStudioI18nReady = Promise.resolve(i18n);
     }
-
-    // Live-sync the language when another same-origin tab changes the shared key,
-    // so open tabs update without a manual refresh. persist:false avoids a write
-    // loop (the value is already stored).
-    window.addEventListener("storage", function (event) {
-        if (event.key !== STORAGE_KEY) return;
-        const lang = preferences.get(STORAGE_KEY, "");
-        if (lang && normalizeLanguage(lang) !== i18n.lang) {
-            i18n.setLanguage(lang, { persist: false });
-        }
-    });
 })();

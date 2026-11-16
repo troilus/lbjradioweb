@@ -14,10 +14,10 @@
 | **多固件** | 把多个固件写进外部 flash 的插槽，开机按住 `MENU` 选择 |
 | **管理安装 APP** | 把 `.app` 覆盖程序装进外部 flash 的应用槽，电台 `F + 7` 菜单启动 |
 | **LBJ 车次日志** | 读取 / 导出车次日志（本页只读） |
-| **K5/K6 V1 TDCS 解码** | 给 V1 版 UV-K5/K6 刷 TDCS 解码固件（旧版引导程序，K 头线） |
+| **K5/K6 V1 LBJ/TDCS 解码** | 给 V1 版 UV-K5/K6 刷 LBJ/TDCS 解码固件（旧版引导程序，K 头线） |
 
 页面外观、布局、串口连接方式**照搬 UV Studio**（`armel.github.io/uvstudio`）：同一套
-顶栏 / 侧栏 / 状态胶囊 / 主题切换 / 语言选择 / 表格 / 进度条 / Console，同一套
+顶栏 / 侧栏 / 状态胶囊 / 主题切换 / 表格 / 进度条 / Console，同一套
 `0x0514` 握手，以及同样的重试与地址校验。**LBJ 车次日志不需要任何固件改动**
 （`0x0738` 由 `ENABLE_FEAT_F4HWN_EXT_FLASH_RW` 提供，Fusion / LBJRadio 预设已开启）。
 
@@ -56,7 +56,7 @@
 
 | 下载 | 内容 |
 | --- | --- |
-| `lbj-log.csv` | 与 `lbj_log.py` 逐字节一致的 CSV（UTF-8 BOM + CRLF）；界面语言为中文时表头用中文 |
+| `lbj-log.csv` | 与 `lbj_log.py` 逐字节一致的 CSV（UTF-8 BOM + CRLF）；表头用中文 |
 | `lbj-log.bin` | 原始 32 KiB，可直接喂给 `python tools/lbj_log.py --raw` 或离线分析 |
 
 表格上方的输入框可按 **车次** 或 **车号** 筛选（纯前端过滤，不影响导出内容）。
@@ -88,7 +88,7 @@ GB2312、体积更小，但没刷字库时中文全部空白。字库刷写见�
 显示签收地点距离和二维码。`LBJRADIO-cn` 为了腾出 flash 关掉了 `FULL WATCH`
 （A/B + 两个监听信道），`LBJRADIO-font` 两个功能都在。
 
-### K5/K6 V1 TDCS 解码
+### K5/K6 V1 LBJ/TDCS 解码
 
 V1 版 UV-K5/K6 的引导程序是旧的 `2.00.06` / `3.x`，上面的 DFU 流程要求
 `7.00.07`，所以 V1 机器要用这个页面。它走 k5prog / uvmod 的旧协议
@@ -172,7 +172,7 @@ js/catalog.js         纯模块：归档站目录（GitHub Contents API）+ 缓�
 js/k5-firmware.js     纯模块：K5/K6 V1 原始/打包固件识别、解包、60 KiB 限制
 js/app.js             LBJ 车次日志视图
 js/view-flash.js      刷固件视图
-js/view-k5tdcs.js     K5/K6 V1 TDCS 解码视图（校准备份 + 旧协议刷写）
+js/view-k5tdcs.js     K5/K6 V1 LBJ/TDCS 解码视图（校准备份 + 旧协议刷写）
 js/view-slots.js      多固件视图
 js/view-apps.js       管理安装 APP 视图
 js/view-calibration.js 校准备份 / 恢复视图

@@ -672,7 +672,7 @@ window.UVSTUDIO_LOCALES.zh = {
   "guidePageNote": "<strong>提示：</strong>刷机前先备份校准；固件版与 APP 版二选一即可。",
 
   /* ── K5/K6 V1 TDCS 解码（旧版引导程序） ─────────────────────────────────── */
-  "studio_nav_k5tdcs": "K5/K6 V1 TDCS 解码",
+  "studio_nav_k5tdcs": "K5/K6 V1 LBJ/TDCS 解码",
   "studio_operation_flash_k5_firmware": "正在刷写 K5/K6 V1 固件…",
   "pageScopeWarning": "此页面适用于UV-K1 K5/K6 v3版本机器",
   "k5Warning": "只适用于V1版本的UV-K5/K6 设备",
