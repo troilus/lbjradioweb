@@ -1,0 +1,75 @@
+/* 校准块字段表 — 校准备份/恢复读到的 512 字节，逐字段解释。
+   tools.css / studio.css 是 vendored 文件，样式单独放这里。 */
+
+#pane-tools .calib-fields {
+  margin: 18px 0 0;
+}
+
+#pane-tools .calib-fields-note {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#pane-tools .calib-fields-warn {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--error);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: rgba(239, 68, 68, 0.06);
+  color: var(--error);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+#pane-tools .calib-fields-table {
+  width: 100%;
+}
+
+#pane-tools .calib-fields-table th,
+#pane-tools .calib-fields-table td {
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#pane-tools .calib-fields-table td.cf-addr,
+#pane-tools .calib-fields-table td.cf-field {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: nowrap;
+}
+
+#pane-tools .calib-fields-table td.cf-label {
+  white-space: nowrap;
+}
+
+#pane-tools .calib-fields-table td.cf-value {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+#pane-tools .calib-fields-table td.cf-mean {
+  color: var(--text-muted);
+  min-width: 240px;
+}
+
+#pane-tools .calib-fields-table tr.is-out td.cf-value {
+  color: var(--error);
+  font-weight: 600;
+}
+
+#pane-tools .calib-fields-table tr.is-muted td {
+  opacity: 0.55;
+}
+
+#pane-tools .calib-fields-total {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

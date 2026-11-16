@@ -50,6 +50,16 @@
 `0x1E00`。校准数据与每台设备一一对应，恢复其他电台的备份可能影响发射指标；
 换固件不会清除它，所以升级前备份、出问题时恢复即可。
 
+读完之后，页签下面会列出这个校准块里每个字段的名称、中文名、值和含义
+（`js/calibration-fields.js`）：RSSI 的 S 表门限、电池电压表、VOX 门限、
+话筒增益、晶振校准，以及 REG_48 的 AF 增益-2 / DAC 增益。AF 那两行还会
+换算成 dB 并给出总增益——PA4 上的 LBJ/TDCS 采样幅度就是由它们决定的。
+整块都是 `FF` 时会提示“未写入校准数据”，固件会退回内置默认值。
+
+K1 的校准块物理上在 `0x010000`，固件通过 `eeprom_compat.c` 的
+`_MK_MAPPING(0x010000, 0xB000, 0xB200)` 让主机按 `0xB000` 读写，所以同一个
+页面和同一套字段偏移对 K1、K5V3 和 K5/K6 V1 都适用。
+
 ### LBJ 车次日志
 
 点 **读取车次日志**，在浏览器弹窗里选中电台的串口。读完后页面上会出现两个下载链接：
@@ -170,6 +180,7 @@ js/radio-format.js    纯模块：CRC32、FMB1 插槽头、FAP1 应用头、版�
 js/channel-format.js  纯模块：MR 信道记录、属性字、频率/band、GB2312 名称编解码
 js/catalog.js         纯模块：归档站目录（GitHub Contents API）+ 缓存 + 分组 + 下载
 js/k5-firmware.js     纯模块：K5/K6 V1 原始/打包固件识别、解包、60 KiB 限制
+js/calibration-fields.js 纯模块：校准块 512 字节逐字段解码 + 表格渲染（K1 / K5 共用）
 js/app.js             LBJ 车次日志视图
 js/view-flash.js      刷固件视图
 js/view-k5tdcs.js     K5/K6 V1 LBJ/TDCS 解码视图（校准备份 + 旧协议刷写）
@@ -233,7 +244,7 @@ Contents API 的 `main` 分支读取，因此不需要额外的清单文件：
 ## 自测
 
 ```sh
-node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js js/channel-format.test.js js/k5-firmware.test.js js/k5-flash.test.js
+node --test js/lbj-log.test.js js/catalog.test.js js/radio-format.test.js js/calibration.test.js js/calibration-fields.test.js js/channel-format.test.js js/k5-firmware.test.js js/k5-flash.test.js
 node --check js/serial.js
 node --check js/channel-format.js
 node --check js/view-channels.js

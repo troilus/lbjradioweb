@@ -13,3 +13,10 @@
 ## 部署
 
 本站是 GitHub Pages（`lbj.xanyi.eu.org`），从 `main` 分支根目录发布。改动只有 commit + push 到 `main` 后才会在线上生效，通常 1–2 分钟重建；验证线上效果前先确认已推送。
+
+## 校准字段表
+
+`js/calibration-fields.js` 把校准备份读到的 512 字节逐字段解码，K1（`0xB000`，物理
+`0x010000`）和 K5/K6 V1（`0x1E00`）共用同一张表，块内偏移一样，只有基址不同。
+字段名和偏移来自固件 `SETTINGS_LoadCalibration()` 与这套固件的 CHIRP 模块，
+改字段先核对那两处。页面是中文单语，文案直接写在模块里，不经过 `locales/`。

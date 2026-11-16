@@ -27,6 +27,8 @@
     const calibBtn = document.getElementById("k5CalibReadBtn");
     const calibDownload = document.getElementById("k5CalibDownload");
     const calibLink = document.getElementById("k5CalibLink");
+    const calibFields = window.UVTOOLS_CALIB_FIELDS;
+    const calibFieldsEl = document.getElementById("k5CalibFields");
     const catalogSection = document.getElementById("k5FirmwareCatalogSection");
     const catalogSelect = document.getElementById("k5FirmwareCatalogSelect");
     const catalogOr = document.getElementById("k5FirmwareCatalogOr");
@@ -247,6 +249,12 @@
             const image = await serial.readCalibration(
                 device.timestamp, V1_CALIBRATION_OFFSET,
                 fraction => { ui.updateProgress(fraction * 100); });
+
+            if (calibFields) {
+                calibFields.render(calibFieldsEl, image, {
+                    base: V1_CALIBRATION_OFFSET, kind: "k5", t
+                });
+            }
 
             ui.updateProgress(100);
             if (calibUrl) URL.revokeObjectURL(calibUrl);

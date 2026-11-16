@@ -24,10 +24,16 @@
     const fileLabel = document.getElementById("calibFileLabel");
     const fileName = document.getElementById("calibFileName");
     const restoreBtn = document.getElementById("restoreBtn");
+    const fields = window.UVTOOLS_CALIB_FIELDS;
+    const fieldsEl = document.getElementById("calibFields");
 
     let dumpUrl = null;
     let calibration = null;      // Uint8Array (512 bytes)
     let calibrationName = "";
+    // K1/K5V3 keeps the block at 0x010000 and the host sees it at 0xB000
+    // (App/driver/eeprom_compat.c). A dump replaces this with the offset the
+    // device actually reported; a file loaded later is labelled with it.
+    let calibrationBase = 0xB000;
 
     // ---- Tabs ---------------------------------------------------------------
 
@@ -68,6 +74,7 @@
             fileName.classList.toggle("has-file", hasFile);
         }
         if (fileLabel) fileLabel.classList.toggle("has-file", hasFile);
+        if (fields) fields.render(fieldsEl, bytes, { base: calibrationBase, kind: "k1", t });
         updateButtons();
     }
 
@@ -163,6 +170,8 @@
             ui.log(t("readingEeprom", hexOffset(offset)), "info");
 
             const image = await serial.readCalibration(timestamp, offset, setProgress);
+            calibrationBase = offset;
+            if (fields) fields.render(fieldsEl, image, { base: offset, kind: "k1", t });
 
             ui.updateProgress(100);
             if (dumpUrl) URL.revokeObjectURL(dumpUrl);
