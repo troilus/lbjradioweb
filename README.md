@@ -15,6 +15,7 @@
 | **管理安装 APP** | 把 `.app` 覆盖程序装进外部 flash 的应用槽，电台 `F + 7` 菜单启动 |
 | **LBJ 车次日志** | 读取 / 导出车次日志（本页只读） |
 | **K5/K6 V1 LBJ/TDCS 解码** | 给 V1 版 UV-K5/K6 刷 LBJ/TDCS 解码固件（旧版引导程序，K 头线） |
+| **运行列车查询** | 外链，新标签页打开 `https://cr.xanyi.eu.org/` |
 
 页面外观、布局、串口连接方式**照搬 UV Studio**（`armel.github.io/uvstudio`）：同一套
 顶栏 / 侧栏 / 状态胶囊 / 主题切换 / 表格 / 进度条 / Console，同一套

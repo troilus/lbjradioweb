@@ -141,6 +141,7 @@ body {
     transition: background 0.13s, color 0.13s;
 }
 .nav-item svg { width: 18px; height: 18px; flex: 0 0 auto; opacity: 0.85; }
+.nav-item[href] { text-decoration: none; }
 .nav-item-label {
     min-width: 0;
     overflow: hidden;
