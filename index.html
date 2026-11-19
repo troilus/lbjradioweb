@@ -402,7 +402,10 @@
                         </div>
                     </div>
                     <p class="slot-meta k5-meta" id="k5FlashMeta" aria-live="polite"></p>
-                    <button id="k5FlashBtn" data-i18n="k5FlashBtn" disabled>刷写固件</button>
+                    <div class="output-actions firmware-actions">
+                        <button id="k5FlashBtn" data-i18n="k5FlashBtn" disabled>刷写固件</button>
+                        <button id="k5DownloadBtn" class="btn" data-i18n="firmwareDownloadBtn" disabled>仅下载</button>
+                    </div>
                 </section>
             </div>
 
@@ -778,7 +781,10 @@ python tools/font_write.py --port COM3 16x16.fon 8x8.fon</code></pre>
                         </div>
                     </div>
                     <p class="slot-meta" id="flashMeta" aria-live="polite"></p>
-                    <button id="flashBtn" data-i18n="flashBtn" disabled>Flash firmware</button>
+                    <div class="output-actions firmware-actions">
+                        <button id="flashBtn" data-i18n="flashBtn" disabled>Flash firmware</button>
+                        <button id="firmwareDownloadBtn" class="btn" data-i18n="firmwareDownloadBtn" disabled>Download only</button>
+                    </div>
                 </section>
             </div>
 

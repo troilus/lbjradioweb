@@ -691,6 +691,8 @@ window.UVSTUDIO_LOCALES.en = {
   "k5Step4": "Power off and on again when done. Channels and settings are preserved.",
   "k5FirmwareLabel": "K5/K6 V1 LBJ/TDCS firmware",
   "k5FlashBtn": "Flash firmware",
+  "firmwareDownloadBtn": "Download only",
+  "firmwareDownloadSaved": "Downloaded {0} ({1})",
   "k5Meta": "Selected {0} · {1} · {2}",
   "k5FormatRaw": "raw image",
   "k5FormatPacked": "packed image (version {0})",

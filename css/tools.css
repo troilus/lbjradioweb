@@ -345,6 +345,15 @@
   gap: 12px;
 }
 
+/* Flash + "download only" pair. The primary CTA keeps its 49 px slab; the
+   secondary .btn is grown to the same height so the two line up. */
+#pane-tools .firmware-actions > .btn {
+  height: 49px;
+  margin-top: 10px;
+  padding: 0 24px;
+  font-size: 15px;
+}
+
 #pane-tools .download-link {
   display: none;
   width: fit-content;

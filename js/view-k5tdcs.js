@@ -38,6 +38,7 @@
     const fileName = document.getElementById("k5FileName");
     const metaEl = document.getElementById("k5FlashMeta");
     const flashBtn = document.getElementById("k5FlashBtn");
+    const downloadBtn = document.getElementById("k5DownloadBtn");
 
     let selection = null;        // { bytes, name, image, format, version, versionBlock, error }
     let entries = [];            // K5 catalog entries
@@ -89,10 +90,10 @@
                 metaEl.textContent = t("k5EmptyFirmware");
             } else {
                 const formatText = selection.format === "packed"
-                    ? t("k5FormatPacked", selection.version || "?")
+                    ? t("k5FormatPacked", (selection.version || "?").replace(/^\*/, ""))
                     : t("k5FormatRaw");
                 metaEl.textContent = t("k5Meta", selection.name,
-                    format.formatBytes(selection.image.length), formatText);
+                    format.formatBytes(selection.bytes.length), formatText);
             }
         }
         updateButtons();
@@ -107,6 +108,9 @@
         const busy = ui.isBusy();
         if (flashBtn) {
             flashBtn.disabled = busy || !selection?.image || Boolean(selection?.error);
+        }
+        if (downloadBtn) {
+            downloadBtn.disabled = busy || !selection?.bytes?.length || Boolean(selection?.error);
         }
         if (calibBtn) calibBtn.disabled = busy;
         if (catalogSelect) catalogSelect.disabled = busy || catalogState !== "ready";
@@ -348,6 +352,26 @@
     }
 
     if (flashBtn) flashBtn.addEventListener("click", () => { void flash(); });
+
+    // ---- Download the loaded file -------------------------------------------
+
+    // Saves exactly what was selected (raw stays raw, packed stays packed) so
+    // the file can be kept, shared or flashed with k5prog later.
+    function downloadFirmware() {
+        if (!selection?.bytes?.length || selection.error) return;
+        const name = selection.name || "firmware.bin";
+        const url = URL.createObjectURL(new Blob([selection.bytes], { type: "application/octet-stream" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        ui.log(t("firmwareDownloadSaved", name, format.formatBytes(selection.bytes.length)), "success");
+    }
+
+    if (downloadBtn) downloadBtn.addEventListener("click", downloadFirmware);
 
     // ---- View lifecycle -----------------------------------------------------
 

@@ -701,6 +701,8 @@ window.UVSTUDIO_LOCALES.zh = {
   "k5Step4": "刷完后关机，再正常开机。信道和设置不受影响。",
   "k5FirmwareLabel": "K5/K6 V1 LBJ/TDCS 固件",
   "k5FlashBtn": "刷写固件",
+  "firmwareDownloadBtn": "仅下载",
+  "firmwareDownloadSaved": "已下载 {0}（{1}）",
   "k5Meta": "已选择 {0} · {1} · {2}",
   "k5FormatRaw": "原始镜像",
   "k5FormatPacked": "打包镜像（版本 {0}）",

@@ -23,6 +23,7 @@
     const fileLabel = document.getElementById("fileLabel");
     const fileName = document.getElementById("fileName");
     const flashBtn = document.getElementById("flashBtn");
+    const downloadBtn = document.getElementById("firmwareDownloadBtn");
     const metaEl = document.getElementById("flashMeta");
     const reloadBtn = document.getElementById("firmwareReloadBtn");
 
@@ -59,6 +60,7 @@
     function updateButtons() {
         const busy = ui.isBusy();
         if (flashBtn) flashBtn.disabled = busy || !firmware;
+        if (downloadBtn) downloadBtn.disabled = busy || !firmware;
         if (catalogSelect) catalogSelect.disabled = busy || catalogState !== "ready";
         if (reloadBtn) reloadBtn.disabled = busy || catalogState === "loading";
         if (fileInput) fileInput.disabled = busy;
@@ -239,6 +241,25 @@
     }
 
     if (flashBtn) flashBtn.addEventListener("click", () => { void flash(); });
+
+    // ---- Download the loaded file -------------------------------------------
+
+    // Saves the selected file as-is, without touching the radio.
+    function downloadFirmware() {
+        if (!firmware?.length) return;
+        const name = firmwareName || "firmware.bin";
+        const url = URL.createObjectURL(new Blob([firmware], { type: "application/octet-stream" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        ui.log(t("firmwareDownloadSaved", name, format.formatBytes(firmware.length)), "success");
+    }
+
+    if (downloadBtn) downloadBtn.addEventListener("click", downloadFirmware);
 
     // ---- View lifecycle -----------------------------------------------------
 

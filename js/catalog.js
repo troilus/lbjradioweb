@@ -36,7 +36,9 @@
   const REQUEST_TIMEOUT_MS = 12000;
 
   const CACHE_PREFIX = 'lbjtools.archive.';
-  const CACHE_FIRMWARE_KEY = CACHE_PREFIX + 'firmware';
+  // v2: k5lbj v1.0.7 became a packed image, so every cached listing holds a
+  // stale size for it and fetchBinary would reject the download.
+  const CACHE_FIRMWARE_KEY = CACHE_PREFIX + 'firmware.v2';
   const CACHE_APPS_KEY = CACHE_PREFIX + 'apps';
   const RATE_LIMIT_KEY = CACHE_PREFIX + 'ratelimit';
 
