@@ -692,6 +692,7 @@ window.UVSTUDIO_LOCALES.zh = {
   "k5Usage3": "等待信号解码后会弹窗，上下翻页历史，6/9 翻页，EXIT 退出弹窗。",
   "k5Usage4": "技巧：弱信号下单守、SQL 设置为零或者监听。",
   "k5Usage5": "按 F + 7 打开历史。",
+  "k5Usage6": "技巧：能听见弱信号但是不能解码加大 DEDGAN；能听见强信号但是不能解码降低 DEDGAN。",
   "k5CalibrationTitle": "校准文件备份",
   "k5CalibrationDescription": "刷机前建议先备份本机校准数据。电台正常开机（不要进刷机模式），用 K 头线连接，点下面的按钮读取 512 字节校准数据。",
   "k5FlashTitle": "刷写固件",
